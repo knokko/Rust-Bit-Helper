@@ -19,6 +19,7 @@ pub fn i32_to_i8_4(int: i32) -> i8 {
 }
 
 pub mod converter;
+pub mod output;
 
 #[cfg(test)]
 mod tests {
@@ -106,6 +107,44 @@ mod tests {
             assert_eq!(short, reverted2);
             assert_eq!(short, reverted3);
             assert_eq!(short, reverted4);
+        }
+    }
+
+    #[test]
+    fn test_i8_to_i32() {
+
+        // 4 billion tests is not so nice, so let's skip some values...
+        let mut counter = 0;
+        let mut int = -2147483648;
+        while counter < 34000 {
+            let byte1 = i32_to_i8_1(int);
+            let byte2 = i32_to_i8_2(int);
+            let byte3 = i32_to_i8_3(int);
+            let byte4 = i32_to_i8_4(int);
+            let pair = i32_to_i8_tuple(int);
+            let array = i32_to_i8_array(int);
+
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte3, pair.2);
+            assert_eq!(byte4, pair.3);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+            assert_eq!(byte3, array[2]);
+            assert_eq!(byte4, array[3]);
+
+            let reverted1 = i8s_to_i32(byte1, byte2, byte3, byte4);
+            let reverted2 = i8_tuple_to_i32(pair);
+            let reverted3 = i8_array_to_i32(array);
+            let reverted4 = i8_slice_to_i32(&array);
+
+            assert_eq!(int, reverted1);
+            assert_eq!(int, reverted2);
+            assert_eq!(int, reverted3);
+            assert_eq!(int, reverted4);
+
+            int += 123456;
+            counter += 1;
         }
     }
 }
