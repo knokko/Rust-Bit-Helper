@@ -540,3 +540,105 @@ pub fn i16_to_i8_tuple(int16: i16) -> (i8, i8) {
 pub fn i16_to_i8_array(int16: i16) -> [i8; 2] {
     [i16_to_i8_1(int16), i16_to_i8_2(int16)]
 }
+
+/**
+ * Convert 4 i8 values to an i32 value. Every distinct tuple of i8 values will be mapped 
+ * to a another i32 value. This function can be used to convert the result of
+ * i32_to_i8_tuple, i32_to_i8_array or i32_to_i8_1...4 back to the original i32 value.
+ */
+pub fn i8s_to_i32(byte1: i8, byte2: i8, byte3: i8, byte4: i8) -> i32 {
+    ((byte4 as i32) << 24) | (((byte3 as i32) & 0xff) << 16) | (((byte2 as i32) & 0xFF) << 8) | ((byte1 as i32) & 0xFF)
+}
+
+/**
+ * Convert a tuple of i8 values to an i32 value. Every distinct pair of i8 values will be mapped 
+ * to a another i32 value. This function can be used to convert the result of
+ * i32_to_i8_tuple, i32_to_i8_array or i32_to_i8_1...4 back to the original i32 value.
+ */
+pub fn i8_tuple_to_i32(bytes: (i8, i8, i8, i8)) -> i32 {
+    i8s_to_i32(bytes.0, bytes.1, bytes.2, bytes.3)
+}
+
+/**
+ * Convert an array containing 4 i8 values to a i32 value. Every distinct tuple of i8 
+ * values will be mapped to a another i32 value. This function can be used to convert 
+ * the result of i32_to_i8_array, i32_to_i8_tuple or i16_to_i8_1...4 back 
+ * the original i32 value.
+ */
+pub fn i8_array_to_i32(bytes: [i8; 4]) -> i32 {
+    i8s_to_i32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * Convert a slice containing 4 i8 values to a i32 value. Every distinct tuple of i8 
+ * values will be mapped to a another i32 value. This function can be used to convert 
+ * the result of i32_to_i8_array, i32_to_i8_tuple or i32_to_i8_1...4 back 
+ * the original i32 value.
+ */
+pub fn i8_slice_to_i32(bytes: &[i8; 4]) -> i32 {
+    i8s_to_i32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * The first function to convert an i32 value to i8 values. This function is useless
+ * without the other i32_to_i8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of i8 values. The original i32 value can be 
+ * restored with the function i8s_to_i32. Similarly, the original
+ * value can be restored by using i8_tuple_to_i32, i8_array_to_i32 and i8_slice_to_i32.
+ */
+pub fn i32_to_i8_1(int32: i32) -> i8 {
+    int32 as i8
+}
+
+/**
+ * The second function to convert an i32 value to i8 values. This function is useless
+ * without the other i32_to_i8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of i8 values. The original i32 value can be 
+ * restored with the function i8s_to_i32. Similarly, the original
+ * value can be restored by using i8_tuple_to_i32, i8_array_to_i32 and i8_slice_to_i32.
+ */
+pub fn i32_to_i8_2(int32: i32) -> i8 {
+    (int32 >> 8) as i8
+}
+
+/**
+ * The third function to convert an i32 value to i8 values. This function is useless
+ * without the other i32_to_i8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of i8 values. The original i32 value can be 
+ * restored with the function i8s_to_i32. Similarly, the original
+ * value can be restored by using i8_tuple_to_i32, i8_array_to_i32 and i8_slice_to_i32.
+ */
+pub fn i32_to_i8_3(int32: i32) -> i8 {
+    (int32 >> 16) as i8
+}
+
+/**
+ * The fourth function to convert an i32 value to i8 values. This function is useless
+ * without the other i32_to_i8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of i8 values. The original i32 value can be 
+ * restored with the function i8s_to_i32. Similarly, the original
+ * value can be restored by using i8_tuple_to_i32, i8_array_to_i32 and i8_slice_to_i32.
+ */
+pub fn i32_to_i8_4(int32: i32) -> i8 {
+    (int32 >> 24) as i8
+}
+
+/**
+ * Converts an i32 value to a tuple of i8 values. Every distinct i32 value will be mapped
+ * to another pair of i8 values. This function can be used to store an i32 value on disk
+ * or to send it over the network. The original i32 value can be restored using
+ * i8_tuple_to_i32, i8s_to_i32, i8_array_to_i32 or i8_slice_to_i32.
+ */
+pub fn i32_to_i8_tuple(int32: i32) -> (i8, i8, i8, i8) {
+    (i32_to_i8_1(int32), i32_to_i8_2(int32), i32_to_i8_3(int32), i32_to_i8_4(int32))
+}
+
+/**
+ * Converts an i32 value to an array of i8 values. Every distinct i32 value will be mapped
+ * to another array of i8 values. This function can be used to store an i32 value on disk
+ * or to send it over the network. The original i32 value can be restored using
+ * i8_array_to_i32, i8_slice_to_i32, i8s_to_i32 or i8_tuple_to_i32.
+ */
+pub fn i32_to_i8_array(int32: i32) -> [i8; 4] {
+    [i32_to_i8_1(int32), i32_to_i8_2(int32), i32_to_i8_3(int32), i32_to_i8_4(int32)]
+}
