@@ -151,7 +151,7 @@ mod tests {
 
     #[test]
     fn test_bool_array_bit_io(){
-        let mut output = BoolArrayBitOutput::new(10);
+        let mut output = BoolVecBitOutput::new(10);
         println!("Initial output is {:?}", output);
         output.ensure_extra_capacity(20);
         println!("Increased capacity output is {:?}", output);
