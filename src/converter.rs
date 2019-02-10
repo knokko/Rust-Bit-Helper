@@ -11,7 +11,7 @@ const POWERS: [u64; 63] = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 40
  * less memory this way. Also, this can be used to efficiently store them in a file or send them over the network.
  * The original booleans can be obtained by using i8_to_booleans or i8_to_boolean_array.
  */
-pub fn booleans_to_i8(b1: bool, b2: bool, b3: bool, b4: bool, b5: bool, b6: bool, b7: bool, b8: bool) -> i8 {
+pub fn bools_to_i8(b1: bool, b2: bool, b3: bool, b4: bool, b5: bool, b6: bool, b7: bool, b8: bool) -> i8 {
     let mut result: i8 = 0;
     if b1 {
          result += 64;
@@ -45,7 +45,7 @@ pub fn booleans_to_i8(b1: bool, b2: bool, b3: bool, b4: bool, b5: bool, b6: bool
  * occupy less memory this way. Also, this can be used to efficiently store them in a file or send them over the 
  * network. The original booleans can be obtained by using i8_to_boolean_tuple, i8_to_booleans or i8_to_boolean_array.
  */
-pub fn boolean_tuple_to_i8(bools: (bool,bool,bool,bool,bool,bool,bool,bool)) -> i8 {
+pub fn bool_tuple_to_i8(bools: (bool,bool,bool,bool,bool,bool,bool,bool)) -> i8 {
     let mut result: i8 = 0;
     if bools.0 {
         result += 64;
@@ -79,7 +79,7 @@ pub fn boolean_tuple_to_i8(bools: (bool,bool,bool,bool,bool,bool,bool,bool)) -> 
  * less memory this way. Also, this can be used to efficiently store them in a file or send them over the network.
  * The original booleans can be obtained by using i8_to_boolean_array or i8_to_booleans.
  */
-pub fn boolean_array_to_i8(source: [bool; 8]) -> i8 {
+pub fn bool_array_to_i8(source: [bool; 8]) -> i8 {
     let mut result: i8 = 0;
     if source[0] {
         result += 64;
@@ -113,7 +113,7 @@ pub fn boolean_array_to_i8(source: [bool; 8]) -> i8 {
  * less memory this way. Also, this can be used to efficiently store them in a file or send them over the network.
  * The original booleans can be obtained by using i8_to_boolean_array or i8_to_booleans.
  */
-pub fn boolean_slice_to_i8(source: &[bool; 8]) -> i8 {
+pub fn bool_slice_to_i8(source: &[bool; 8]) -> i8 {
     let mut result: i8 = 0;
     if source[0] {
         result += 64;
@@ -148,7 +148,7 @@ pub fn boolean_slice_to_i8(source: &[bool; 8]) -> i8 {
  * using anything but the functions that were just mentioned. This function will map every unique i8 value to a 
  * unique 8-tuple of booleans.
  */
-pub fn i8_to_boolean_array(mut byte: i8) -> [bool; 8] {
+pub fn i8_to_bool_array(mut byte: i8) -> [bool; 8] {
     let mut booleans = [false; 8];
     if byte >= 0 {
         booleans[7] = true;
@@ -197,7 +197,7 @@ pub fn i8_to_boolean_array(mut byte: i8) -> [bool; 8] {
  * but the functions that were just mentioned. This function will map every unique i8 value to a unique 8-tuple 
  * of booleans.
  */
-pub fn i8_to_boolean_tuple(mut byte: i8) -> (bool, bool, bool, bool, bool, bool, bool, bool) {
+pub fn i8_to_bool_tuple(mut byte: i8) -> (bool, bool, bool, bool, bool, bool, bool, bool) {
     let mut booleans = (false,false,false,false,false,false,false,false);
     if byte >= 0 {
         booleans.7 = true;
