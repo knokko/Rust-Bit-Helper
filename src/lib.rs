@@ -25,22 +25,23 @@ pub mod output;
 mod tests {
 
     use crate::converter::*;
+    use crate::output::*;
 
     #[test]
     fn int8s_to_booleans() {
         for element in -128i8..=127i8 {
-            let boolean_tuple = i8_to_boolean_tuple(element);
-            let boolean_array = i8_to_boolean_array(element);
+            let boolean_tuple = i8_to_bool_tuple(element);
+            let boolean_array = i8_to_bool_array(element);
 
-            let reverted1 = boolean_tuple_to_i8(boolean_tuple);
-            let reverted2 = booleans_to_i8(boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7);
-            let reverted3 = boolean_array_to_i8([boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
-            let reverted4 = boolean_slice_to_i8(&[boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
+            let reverted1 = bool_tuple_to_i8(boolean_tuple);
+            let reverted2 = bools_to_i8(boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7);
+            let reverted3 = bool_array_to_i8([boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
+            let reverted4 = bool_slice_to_i8(&[boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
 
-            let reverted5 = boolean_tuple_to_i8((boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]));
-            let reverted6 = booleans_to_i8(boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]);
-            let reverted7 = boolean_array_to_i8(boolean_array);
-            let reverted8 = boolean_slice_to_i8(&boolean_array);
+            let reverted5 = bool_tuple_to_i8((boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]));
+            let reverted6 = bools_to_i8(boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]);
+            let reverted7 = bool_array_to_i8(boolean_array);
+            let reverted8 = bool_slice_to_i8(&boolean_array);
 
             assert_eq!(element, reverted1);
             assert_eq!(element, reverted2);
@@ -146,5 +147,18 @@ mod tests {
             int += 123456;
             counter += 1;
         }
+    }
+
+    #[test]
+    fn test_bool_array_bit_io(){
+        let mut output = BoolArrayBitOutput::new(10);
+        println!("Initial output is {:?}", output);
+        output.ensure_extra_capacity(20);
+        println!("Increased capacity output is {:?}", output);
+        output.add_direct_bool(true);
+        output.add_direct_bool(false);
+        output.add_direct_i8(120);
+        output.add_direct_bools(&[true,false,true,false,true]);
+        println!("After saving some data: {:?}", output);
     }
 }
