@@ -69,6 +69,19 @@ pub trait BitOutput {
     }
 
     /**
+     * Add the booleans in the range start_index to start_index + amount from bools to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all booleans in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many booleans were stored. The mirror function of this funcion are read_bools
+     */
+    fn add_direct_some_bools(&mut self, bools: &[bool], start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_bool(bools[index]);
+        }
+    }
+
+    /**
      * Add the length of the boolean slice and the values of all booleans in the slice without
      * checking the capacity. The mirror function of this function is read_bool_array. There is 
      * no read_bool_slice because it doesn't really make sense to borrow the data since the 
@@ -210,6 +223,11 @@ pub trait BitOutput {
         self.add_direct_bools(values);
     }
 
+    fn add_some_bools(&mut self, values: &[bool], start_index: usize, amount: usize){
+        self.ensure_extra_capacity(amount);
+        self.add_direct_some_bools(values, start_index, amount);
+    }
+
     /**
      * Add the length of the boolean slice and the values of all booleans in the slice. The 
      * mirror function of this function is read_bool_array. There is no read_bool_slice because 
@@ -331,8 +349,32 @@ pub trait BitOutput {
         self.ensure_extra_capacity(32 + values.len() * 32);
         self.add_direct_i32_slice(values);
     }
+
+    /**
+     * Stores the given signed integer using the given amount of bits. The number of bits
+     * can be any integer in the interval [0, 64]. This function allows you to store integers
+     * that only need for instance 21 bits compactly.
+     * 
+     * The given value must be in the interval [-2^(bits - 1), 2^(bits - 1) - 1]. If it is not,
+     * this function will panic.
+     * 
+     * The mirror function of this function is read_signed_int.
+     */
+    fn add_signed_int(&mut self, value: i64, bits: usize){
+        self.ensure_extra_capacity(bits);
+
+        // It is not allowed to create a variable length array, so 64 is the safe choise
+        let mut buffer = [false; 64];
+        signed_int_to_bools(value, bits, &mut buffer, 0);
+        self.add_direct_bool_slice(&buffer[0..bits]);
+    }
 }
 
+/**
+ * This is the most straight-forward implementation of BitOutput. It literally uses booleans to store
+ * its data. Unfortunately, boolean vectors take a lot of memory, so this is usually not a compact
+ * way to store data.
+ */
 pub struct BoolVecBitOutput {
     vector: Vec<bool>
 }

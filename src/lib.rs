@@ -1,34 +1,18 @@
-pub fn i8s_to_i32(byte1: i8, byte2: i8, byte3: i8, byte4: i8) -> i32 {
-    (((byte4 as i32) << 24) | ((byte3 as i32 & 0xff) << 16) | ((byte2 as i32 & 0xff) << 8) | ((byte1 as i32 & 0xff)))
-}
-
-pub fn i32_to_i8_1(int: i32) -> i8 {
-    int as i8
-}
-
-pub fn i32_to_i8_2(int: i32) -> i8 {
-    (int >> 8) as i8
-}
-
-pub fn i32_to_i8_3(int: i32) -> i8 {
-    (int >> 16) as i8
-}
-
-pub fn i32_to_i8_4(int: i32) -> i8 {
-    (int >> 24) as i8
-}
-
 pub mod converter;
 pub mod output;
+pub mod input;
 
 #[cfg(test)]
 mod tests {
 
     use crate::converter::*;
     use crate::output::*;
+    use crate::input::*;
 
     #[test]
     fn int8s_to_booleans() {
+
+        // Only 256 possible values, so just test them all
         for element in -128i8..=127i8 {
             let boolean_tuple = i8_to_bool_tuple(element);
             let boolean_array = i8_to_bool_array(element);
@@ -61,6 +45,8 @@ mod tests {
             print!("{}, ", l);
             l *= 2;
         }
+
+        // Only 256 possible values, so just test them all
         for element in 0u8..=255 {
             let boolean_tuple = u8_to_boolean_tuple(element);
             let boolean_array = u8_to_boolean_array(element);
@@ -88,6 +74,8 @@ mod tests {
 
     #[test]
     fn test_i8_to_i16() {
+
+        // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
         for short in -32768i16..=32767 {
             let byte1 = i16_to_i8_1(short);
             let byte2 = i16_to_i8_2(short);
@@ -160,5 +148,18 @@ mod tests {
         output.add_direct_i8(120);
         output.add_direct_bools(&[true,false,true,false,true]);
         println!("After saving some data: {:?}", output);
+    }
+
+    #[test]
+    fn test_integer_to_bools(){
+        let mut integer = -9223372036854775808;
+        while integer < 23738474347634 {
+            let mut as_bools = [false; 64];
+            signed_int_to_bools(integer, 64, &mut as_bools, 0);
+            let reverted = bools_to_signed_int(64, &as_bools, 0);
+            assert_eq!(integer, reverted);
+
+            integer += 9538274823127357;
+        }
     }
 }
