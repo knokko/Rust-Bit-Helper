@@ -55,16 +55,30 @@ pub trait BitOutput {
     fn terminate(&mut self);
 
     /**
-     * Add all provided booleans to this BitOutput without checking if there is enough capacity left. This is just
+     * Add all booleans in the slice to this BitOutput without checking if there is enough capacity left. This is just
      * a shortcut for adding all booleans one by one. The amount of booleans is NOT stored, so make sure your
      * application knows how many bools were stored. The mirror function of this function is read_bools and the
      * amount of bools to read must be stored as parameter.
      * 
      * If you want to store the amount as well, use add_direct_bool_slice instead.
      */
-    fn add_direct_bools(&mut self, bools: &[bool]){
+    fn add_direct_bools_from_slice(&mut self, bools: &[bool]){
         for value in bools {
             self.add_direct_bool(*value);
+        }
+    }
+
+    /**
+     * Add all booleans in the vector to this BitOutput without checking if there is enough capacity left. This is just
+     * a shortcut for adding all booleans one by one. The amount of booleans is NOT stored, so make sure your
+     * application knows how many bools were stored. The mirror function of this function is read_bools and the
+     * amount of bools to read must be stored as parameter.
+     * 
+     * If you want to store the amount as well, use add_direct_bool_vec instead.
+     */
+    fn add_direct_bools_from_vec(&mut self, bools: &Vec<bool>){
+        for value in bools {
+            self.add_direct_bool(value);
         }
     }
 
@@ -74,7 +88,20 @@ pub trait BitOutput {
      * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
      * knows how many booleans were stored. The mirror function of this funcion are read_bools
      */
-    fn add_direct_some_bools(&mut self, bools: &[bool], start_index: usize, amount: usize){
+    fn add_direct_some_bools_from_slice(&mut self, bools: &[bool], start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_bool(bools[index]);
+        }
+    }
+
+    /**
+     * Add the booleans in the range start_index to start_index + amount from bools to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all booleans in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many booleans were stored. The mirror function of this funcion are read_bools
+     */
+    fn add_direct_some_bools_from_vec(&mut self, bools: &Vec<bool>, start_index: usize, amount: usize){
         let bound_index = start_index + amount;
         for index in start_index..bound_index {
             self.add_direct_bool(bools[index]);
@@ -83,29 +110,66 @@ pub trait BitOutput {
 
     /**
      * Add the length of the boolean slice and the values of all booleans in the slice without
-     * checking the capacity. The mirror function of this function is read_bool_array. There is 
-     * no read_bool_slice because it doesn't really make sense to borrow the data since the 
-     * BitInput will create the array and won't need it for itself.
+     * checking the capacity of this BitOutput. The mirror function of this function is 
+     * read_bool_array.
+     * 
+     * The mirror function of this function is read_bool_vec. There is no read_bool_array
+     * because array sizes in Rust must be known at compile time and there is no
+     * read_bool_slice for the same reason.
      * 
      * The length will be stored as i32 to make sure the stored data can also be read by 
      * java or javascript applications that use the BitHelper variant for their language.
      */
     fn add_direct_bool_slice(&mut self, bools: &[bool]){
         self.add_direct_i32(bools.len() as i32);
-        self.add_direct_bools(bools);
+        self.add_direct_bools_from_slice(bools);
     }
 
     /**
-     * Add all i8 values in the provided slice to this BitOutput without checking the capacity.
-     * A call to this function is equivalent to adding all i8 values directly one by one. The length
-     * of the slice is not stored, so make sure the application always knows how many i8 values
-     * to read. The mirror function of this function is read_i8s and notice that it needs the amount
+     * Add the length of the boolean vector and the values of all booleans in the vector without
+     * checking the capacity of this BitOutput. The mirror function of this function is 
+     * read_bool_array.
+     * 
+     * The mirror function of this function is read_bool_vec.
+     * 
+     * The length will be stored as i32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_bool_vec(&mut self, bools: &Vec<bool>){
+        self.add_direct_i32(bools.len() as i32);
+        self.add_direct_bools_from_vec(bools);
+    }
+
+    /**
+     * Add all i8 values in the provided slice to this BitOutput without checking the capacity of
+     * this BitOutput. A call to this function is equivalent to adding all i8 values directly one 
+     * by one. The length of the slice is not stored, so make sure the application always knows 
+     * how many i8 values to read. 
+     * 
+     * The mirror function of this function is read_i8s and notice that it needs the amount
      * of i8 values to read as parameter.
      * 
      * If you want to store the length as well, use add_direct_i8_slice instead.
      */
-    fn add_direct_i8s(&mut self, bytes: &[i8]){
-        for value in bytes {
+    fn add_direct_i8s_from_slice(&mut self, i8s: &[i8]){
+        for value in i8s {
+            self.add_direct_i8(*value);
+        }
+    }
+
+    /**
+     * Add all i8 values in the provided vector to this BitOutput without checking the capacity of
+     * this BitOutput. A call to this function is equivalent to adding all i8 values directly one 
+     * by one. The length of the vector is not stored, so make sure the application always knows 
+     * how many i8 values to read. 
+     * 
+     * The mirror function of this function is read_i8s and notice that it needs the amount
+     * of i8 values to read as parameter.
+     * 
+     * If you want to store the length as well, use add_direct_i8_vec instead.
+     */
+    fn add_direct_i8s_from_vec(&mut self, i8s: &Vec<i8>){
+        for value in i8s {
             self.add_direct_i8(*value);
         }
     }
