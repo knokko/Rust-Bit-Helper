@@ -68,14 +68,34 @@ pub trait BitInput {
      * 
      * The mirror functions of this function is add_bools.
      */
-    fn read_direct_some_bools(&mut self, dest: &mut [bool], start_index: usize, amount: usize) {
+    fn read_direct_bools_to_slice(&mut self, dest: &mut [bool], start_index: usize, amount: usize) {
         let bound_index = start_index + amount;
         for index in start_index..bound_index {
             dest[index] = self.read_direct_bool();
         }
     }
 
-    fn read_direct_bools_vec(&mut self, amount: usize) -> Vec<bool> {
+    /**
+    * Reads amount booleans from this BitInput and puts them in dest, without checking if there is enough capacity
+    * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+    * to make sure there is enough data that can be read immediathly.
+    *
+    * The mirror functions of this function are add_bools and add_some_bools.
+    */
+    fn read_direct_bools_to_vec(&mut self, dest: &Vec<bool>, amount: usize) {
+        dest.ensure_capacity(amount);
+        for _ in 0..amount {
+            dest.push(self.read_direct_bool());
+        }
+    }
+
+    /**
+    * Reads amount booleans from this BitInput without checking if this BitInput has enough capacity left. The
+    * read booleans will be put in a new bool vector and that vector will be returned by this method.
+    *
+    * The mirror functions of this function are add_bools and add_some_bools.
+    */
+    fn read_direct_bools(&mut self, amount: usize) -> Vec<bool> {
         let mut result = Vec::with_capacity(amount);
         for _ in 0..amount {
             result.push(self.read_direct_bool());
