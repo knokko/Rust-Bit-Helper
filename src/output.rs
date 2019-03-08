@@ -78,7 +78,7 @@ pub trait BitOutput {
      */
     fn add_direct_bools_from_vec(&mut self, bools: &Vec<bool>){
         for value in bools {
-            self.add_direct_bool(value);
+            self.add_direct_bool(*value);
         }
     }
 
@@ -185,7 +185,7 @@ pub trait BitOutput {
      */
     fn add_direct_i8_slice(&mut self, bytes: &[i8]){
         self.add_direct_i32(bytes.len() as i32);
-        self.add_direct_i8s(bytes);
+        self.add_direct_i8s_from_slice(bytes);
     }
 
     /**
@@ -284,12 +284,12 @@ pub trait BitOutput {
      */
     fn add_bools(&mut self, values: &[bool]){
         self.ensure_extra_capacity(values.len());
-        self.add_direct_bools(values);
+        self.add_direct_bools_from_slice(values);
     }
 
     fn add_some_bools(&mut self, values: &[bool], start_index: usize, amount: usize){
         self.ensure_extra_capacity(amount);
-        self.add_direct_some_bools(values, start_index, amount);
+        self.add_direct_some_bools_from_slice(values, start_index, amount);
     }
 
     /**
@@ -323,9 +323,9 @@ pub trait BitOutput {
      * 
      * If you want to store the length as well, use add_i8_slice instead.
      */
-    fn add_i8s(&mut self, values: &[i8]){
+    fn add_i8s_from_slice(&mut self, values: &[i8]){
         self.ensure_extra_capacity(values.len() * 8);
-        self.add_direct_i8s(values);
+        self.add_direct_i8s_from_slice(values);
     }
 
     /**
@@ -450,7 +450,7 @@ impl BitOutput for BoolVecBitOutput {
     }
 
     fn add_direct_i8(&mut self, value: i8){
-        self.add_direct_bools(&i8_to_bool_array(value));
+        self.add_direct_bools_from_slice(&i8_to_bool_array(value));
     }
 
     fn ensure_extra_capacity(&mut self, extra_bools: usize){

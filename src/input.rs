@@ -82,8 +82,8 @@ pub trait BitInput {
     *
     * The mirror functions of this function are add_bools and add_some_bools.
     */
-    fn read_direct_bools_to_vec(&mut self, dest: &Vec<bool>, amount: usize) {
-        dest.ensure_capacity(amount);
+    fn read_direct_bools_to_vec(&mut self, dest: &mut Vec<bool>, amount: usize) {
+        dest.reserve(amount);
         for _ in 0..amount {
             dest.push(self.read_direct_bool());
         }
