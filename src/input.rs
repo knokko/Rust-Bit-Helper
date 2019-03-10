@@ -82,10 +82,13 @@ pub trait BitInput {
     *
     * The mirror functions of this function are add_bools and add_some_bools.
     */
-    fn read_direct_bools_to_vec(&mut self, dest: &mut Vec<bool>, amount: usize) {
-        dest.reserve(amount);
-        for _ in 0..amount {
-            dest.push(self.read_direct_bool());
+    fn read_direct_bools_to_vec(&mut self, dest: &mut Vec<bool>, start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        if bound_index > dest.len() {
+            dest.resize(bound_index - dest.len(), false);
+        }
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_bool();
         }
     }
 
@@ -93,7 +96,8 @@ pub trait BitInput {
     * Reads amount booleans from this BitInput without checking if this BitInput has enough capacity left. The
     * read booleans will be put in a new bool vector and that vector will be returned by this method.
     *
-    * The mirror functions of this function are add_bools and add_some_bools.
+    * The mirror functions of this function are add_bools, add_bools_from_vec, add_bools_from_slice,
+    * add_some_bools_from_vec and add_some_bools_from_slice.
     */
     fn read_direct_bools(&mut self, amount: usize) -> Vec<bool> {
         let mut result = Vec::with_capacity(amount);
@@ -101,5 +105,141 @@ pub trait BitInput {
             result.push(self.read_direct_bool());
         }
         result
+    }
+
+    /**
+     * Reads a boolean vector from this BitInput without checking if there is enough capacity left in this BitInput.
+     * The read boolean vector will be returned.
+     * 
+     * The mirror functions of this function are add_bool_vec and add_bool_slice.
+     */
+    fn read_direct_bool_vec(&mut self) -> Vec<bool> {
+        let amount = self.read_direct_i32();
+        self.read_direct_bools(amount as usize)
+    }
+
+    /**
+     * Reads an u8 from this BitInput without checking if there is enough capacity left in this BitInput.
+     * 
+     * The mirror function of this function is add_u8.
+     */
+    fn read_direct_u8(&mut self) -> u8 {
+        self.read_direct_i8() as u8
+    }
+
+    /**
+     * Reads an i16 from this BitInput without checking if there is enough capacity left in this BitInput.
+     * 
+     * The mirror function of this function is add_i16.
+     */
+    fn read_direct_i16(&mut self) -> i16 {
+        i8s_to_i16(self.read_direct_i8(), self.read_direct_i8())
+    }
+
+    /**
+     * Reads an u16 from this BitInput without checking if there is enough capacity left in this BitInput.
+     * 
+     * The mirror function of this function is add_u16.
+     */
+    fn read_direct_u16(&mut self) -> u16 {
+        i8s_to_u16(self.read_direct_i8(), self.read_direct_i8())
+    }
+
+    /**
+     * Reads an i32 from this BitInput without checking if there is enough capacity left in this BitInput.
+     * 
+     * The mirror function of this function is add_i32.
+     */
+    fn read_direct_i32(&mut self) -> i32 {
+        i8s_to_i32(self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8())
+    }
+
+    /**
+     * Reads a u32 value from this BitInput without checking if there is enough capacity left in this BitInput.
+     * 
+     * The mirror function of this function is add_u32.
+     */
+    fn read_direct_u32(&mut self) -> u32 {
+        i8s_to_u32(self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8())
+    }
+
+    /**
+     * Reads an i8 value from this BitInput.
+     * 
+     * The mirror function of this function is add_i8.
+     */
+    fn read_i8(&mut self) -> i8 {
+        self.ensure_extra_capacity(8);
+        self.read_direct_i8()
+    }
+
+    /**
+     * Reads a u16 value from this BitInput.
+     * 
+     * The mirror function of this function is add_u16.
+     */
+    fn read_u8(&mut self) -> u8 {
+        self.ensure_extra_capacity(8);
+        self.read_direct_u8()
+    }
+
+    /**
+     * Reads an i16 value from this BitInput.
+     * 
+     * The mirror function of this function is add_i16.
+     */
+    fn read_i16(&mut self) -> i16 {
+        self.ensure_extra_capacity(16);
+        self.read_direct_i16()
+    }
+
+    /**
+     * Reads a u16 value from this BitInput.
+     * 
+     * The mirror function of this function is read_u16.
+     */
+    fn read_u16(&mut self) -> u16 {
+        self.ensure_extra_capacity(16);
+        self.read_direct_u16()
+    }
+}
+
+pub struct BoolSliceBitInput<'a> {
+    bools: &'a [bool],
+    read_index: usize
+}
+
+impl<'a> BoolSliceBitInput<'a> {
+
+    pub fn new(bools: &'a[bool]) -> BoolSliceBitInput {
+        BoolSliceBitInput {
+            bools: bools,
+            read_index: 0
+        }
+    }
+}
+
+impl<'a> BitInput for BoolSliceBitInput<'a> {
+
+    fn read_direct_bool(&mut self) -> bool {
+        let result = self.bools[self.read_index];
+        self.read_index += 1;
+        result
+    }
+
+    fn read_direct_i8(&mut self) -> i8 {
+        let result = bool_slice_to_i8(&self.bools[self.read_index..self.read_index + 8]);
+        self.read_index += 8;
+        result
+    }
+
+    fn ensure_extra_capacity(&mut self, additional: usize){
+        if self.read_index + additional >= self.bools.len() {
+            panic!("length is {}, but read_index is {} and additional is {}", self.bools.len(), self.read_index, additional);
+        }
+    }
+
+    fn terminate(&mut self){
+        self.read_index = self.bools.len();
     }
 }

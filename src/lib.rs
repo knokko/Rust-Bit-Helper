@@ -140,14 +140,45 @@ mod tests {
     #[test]
     fn test_bool_array_bit_io(){
         let mut output = BoolVecBitOutput::new(10);
-        println!("Initial output is {:?}", output);
-        output.ensure_extra_capacity(20);
-        println!("Increased capacity output is {:?}", output);
-        output.add_direct_bool(true);
-        output.add_direct_bool(false);
-        output.add_direct_i8(120);
-        output.add_direct_bools(&[true,false,true,false,true]);
-        println!("After saving some data: {:?}", output);
+        put_stuff_in_bit_output(&mut output);
+        let mut input = BoolSliceBitInput::new(output.get_slice());
+        check_stuff_in_bit_input(&mut input);
+    }
+
+    fn put_stuff_in_bit_output(output: &mut BitOutput){
+        output.add_bools_from_slice(&[false, true, true, false, true]);
+        output.add_i8(-125);
+        //output.add_u8(234);
+        output.add_i16(-21345);
+        //output.add_u16(25565);
+        output.add_i32(2123456789);
+
+        output.ensure_extra_capacity(1000);
+        output.add_direct_bool_slice(&[false, false, true, false, true, true]);
+        output.add_direct_bool_vec(&vec![true, true, false, false]);
+        output.add_direct_bools_from_slice(&[true, false, true, false, true]);
+        output.add_direct_bools_from_vec(&vec![false, false, false, true, false, true]);
+        output.add_direct_some_bools_from_slice(&[false, true, false, true, false], 1, 3);
+        output.add_direct_some_bools_from_vec(&vec![true, false, false, true], 1, 2);
+    }
+
+    fn check_stuff_in_bit_input(input: &mut BitInput){
+        assert_eq!(input.read_direct_bools(5), vec![false, true, true, false, true]);
+        assert_eq!(input.read_direct_i8(), -125);
+        assert_eq!(input.read_direct_i16(), -21345);
+        assert_eq!(input.read_direct_i32(), 2123456789);
+
+        input.ensure_extra_capacity(1000);
+        assert_eq!(input.read_direct_bool_vec(), vec![false, false, true, false, true, true]);
+        assert_eq!(input.read_direct_bool_vec(), vec![true, true, false, false]);
+        assert_eq!(input.read_direct_bools(5), vec![true, false, true, false, true]);
+        assert_eq!(input.read_direct_bools(6), vec![false, false, false, true, false, true]);
+        let mut test_vec = vec![false; 3];
+        input.read_direct_bools_to_vec(&mut test_vec, 0, 3);
+        assert_eq!(test_vec, vec![true, false, true]);
+        let mut test_slice = [true; 2];
+        input.read_direct_bools_to_slice(&mut test_slice, 0, 2);
+        assert_eq!(test_slice, [false, false]);
     }
 
     #[test]
