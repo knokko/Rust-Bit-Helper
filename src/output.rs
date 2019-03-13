@@ -222,6 +222,7 @@ pub trait BitOutput {
      */
     fn add_bools_from_vec(&mut self, bools: &Vec<bool>){
         self.ensure_extra_capacity(bools.len());
+        self.add_direct_bools_from_vec(bools);
     }
 
     /**
@@ -399,6 +400,7 @@ pub trait BitOutput {
      */
     fn add_i8s_from_vec(&mut self, i8s: &Vec<i8>){
         self.ensure_extra_capacity(8 * i8s.len());
+        self.add_direct_i8s_from_vec(i8s);
     }
 
     /**
@@ -576,6 +578,7 @@ pub trait BitOutput {
      */
     fn add_i16s_from_vec(&mut self, i16s: &Vec<i16>){
         self.ensure_extra_capacity(16 * i16s.len());
+        self.add_direct_i16s_from_vec(i16s);
     }
 
     /**
@@ -756,6 +759,7 @@ pub trait BitOutput {
      */
     fn add_i32s_from_vec(&mut self, i32s: &Vec<i32>){
         self.ensure_extra_capacity(32 * i32s.len());
+        self.add_direct_i32s_from_vec(i32s);
     }
 
     /**
