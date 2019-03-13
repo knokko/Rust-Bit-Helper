@@ -59,14 +59,15 @@ pub trait BitInput {
     fn terminate(&mut self);
 
     /**
-     * Reads amount booleans from this BitInput and puts them in dest, without checking if there is enough capacity
+     * Reads amount bools from this BitInput and puts them in dest, without checking if there is enough capacity
      * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
      * to make sure there is enough data that can be read immediathly.
      * 
-     * The first boolean read will be put in dest[start_index] and the last boolean read will be put in
+     * The first bool read will be put in dest[start_index] and the last bool read will be put in
      * dest[start_index + amount - 1].
      * 
-     * The mirror functions of this function is add_bools.
+     * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
+     * add_some_bools_from_slice and add_some_bools_from_vec.
      */
     fn read_direct_bools_to_slice(&mut self, dest: &mut [bool], start_index: usize, amount: usize) {
         let bound_index = start_index + amount;
@@ -76,11 +77,15 @@ pub trait BitInput {
     }
 
     /**
-    * Reads amount booleans from this BitInput and puts them in dest, without checking if there is enough capacity
+    * Reads amount bools from this BitInput and puts them in dest, without checking if there is enough capacity
     * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
     * to make sure there is enough data that can be read immediathly.
     *
-    * The mirror functions of this function are add_bools and add_some_bools.
+    * The first bool read will be put in dest[start_index] and the last bool read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
+    * add_some_bools_from_slice and add_some_bools_from_vec.
     */
     fn read_direct_bools_to_vec(&mut self, dest: &mut Vec<bool>, start_index: usize, amount: usize) {
         let bound_index = start_index + amount;
@@ -93,11 +98,14 @@ pub trait BitInput {
     }
 
     /**
-    * Reads amount booleans from this BitInput without checking if this BitInput has enough capacity left. The
-    * read booleans will be put in a new bool vector and that vector will be returned by this method.
+    * Reads amount bools from this BitInput without checking if this BitInput has enough capacity left. The
+    * read bools will be put in a new bool vector and that vector will be returned by this method.
     *
-    * The mirror functions of this function are add_bools, add_bools_from_vec, add_bools_from_slice,
-    * add_some_bools_from_vec and add_some_bools_from_slice.
+    * The first bool read will be put at the first index of result and the last bool read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
+    * add_some_bools_from_slice and add_some_bools_from_vec.
     */
     fn read_direct_bools(&mut self, amount: usize) -> Vec<bool> {
         let mut result = Vec::with_capacity(amount);
@@ -108,14 +116,75 @@ pub trait BitInput {
     }
 
     /**
-     * Reads a boolean vector from this BitInput without checking if there is enough capacity left in this BitInput.
-     * The read boolean vector will be returned.
+     * Reads a bool vector from this BitInput without checking if there is enough capacity left in this BitInput.
+     * The read bool vector will be returned.
      * 
      * The mirror functions of this function are add_bool_vec and add_bool_slice.
      */
     fn read_direct_bool_vec(&mut self) -> Vec<bool> {
         let amount = self.read_direct_i32();
         self.read_direct_bools(amount as usize)
+    }
+
+
+
+
+    /**
+     * Reads amount bools from this BitInput and puts them in dest.
+     * 
+     * The first bool read will be put in dest[start_index] and the last bool read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
+     * add_some_bools_from_slice and add_some_bools_from_vec.
+     */
+    fn read_bools_to_slice(&mut self, dest: &mut [bool], start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount);
+        self.read_direct_bools_to_slice(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount bools from this BitInput and puts them in dest.
+    *
+    * The first bool read will be put in dest[start_index] and the last bool read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
+    * add_some_bools_from_slice and add_some_bools_from_vec.
+    */
+    fn read_bools_to_vec(&mut self, dest: &mut Vec<bool>, start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount);
+        self.read_direct_bools_to_vec(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount bools from this BitInput. The read bools will be put in a new bool vector and that 
+    * vector will be returned by this method.
+    *
+    * The first bool read will be put at the first index of result and the last bool read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
+    * add_some_bools_from_slice and add_some_bools_from_vec.
+    */
+    fn read_bools(&mut self, amount: usize) -> Vec<bool> {
+        self.ensure_extra_capacity(amount);
+        self.read_direct_bools(amount)
+    }
+
+    /**
+     * Reads a bool vector from this BitInput. The read bool vector will be returned.
+     * 
+     * The mirror functions of this function are add_bool_vec and add_bool_slice.
+     */
+    fn read_bool_vec(&mut self) -> Vec<bool> {
+        let amount = self.read_i32() as usize;
+        self.ensure_extra_capacity(amount);
+        let mut vec = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            vec.push(self.read_direct_bool());
+        }
+        vec
     }
 
     /**
@@ -196,11 +265,31 @@ pub trait BitInput {
     /**
      * Reads a u16 value from this BitInput.
      * 
-     * The mirror function of this function is read_u16.
+     * The mirror function of this function is add_u16.
      */
     fn read_u16(&mut self) -> u16 {
         self.ensure_extra_capacity(16);
         self.read_direct_u16()
+    }
+
+    /**
+     * Reads an i32 value from this BitInput.
+     * 
+     * The mirror function of this function is add_i32.
+     */
+    fn read_i32(&mut self) -> i32 {
+        self.ensure_extra_capacity(32);
+        self.read_direct_i32()
+    }
+
+    /**
+     * Reads a u32 value from this BitInput.
+     * 
+     * The mirror function of this function is add_u32.
+     */
+    fn read_u32(&mut self) -> u32 {
+        self.ensure_extra_capacity(32);
+        self.read_direct_u32()
     }
 }
 
@@ -234,7 +323,7 @@ impl<'a> BitInput for BoolSliceBitInput<'a> {
     }
 
     fn ensure_extra_capacity(&mut self, additional: usize){
-        if self.read_index + additional >= self.bools.len() {
+        if self.read_index + additional > self.bools.len() {
             panic!("length is {}, but read_index is {} and additional is {}", self.bools.len(), self.read_index, additional);
         }
     }
