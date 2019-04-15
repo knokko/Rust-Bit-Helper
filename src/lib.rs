@@ -137,6 +137,73 @@ mod tests {
         }
     }
 
+
+
+        #[test]
+    fn test_u8_to_i16() {
+
+        // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
+        for short in -32768i16..=32767 {
+            let byte1 = i16_to_u8_1(short);
+            let byte2 = i16_to_u8_2(short);
+            let pair = i16_to_u8_tuple(short);
+            let array = i16_to_u8_array(short);
+
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+
+            let reverted1 = u8s_to_i16(byte1, byte2);
+            let reverted2 = u8_tuple_to_i16(pair);
+            let reverted3 = u8_array_to_i16(array);
+            let reverted4 = u8_slice_to_i16(&array);
+
+            assert_eq!(short, reverted1);
+            assert_eq!(short, reverted2);
+            assert_eq!(short, reverted3);
+            assert_eq!(short, reverted4);
+        }
+    }
+
+    #[test]
+    fn test_u8_to_i32() {
+
+        // 4 billion tests is not so nice, so let's skip some values...
+        let mut counter = 0;
+        let mut int = -2147483648;
+        while counter < 34000 {
+            let byte1 = i32_to_u8_1(int);
+            let byte2 = i32_to_u8_2(int);
+            let byte3 = i32_to_u8_3(int);
+            let byte4 = i32_to_u8_4(int);
+            let pair = i32_to_u8_tuple(int);
+            let array = i32_to_u8_array(int);
+
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte3, pair.2);
+            assert_eq!(byte4, pair.3);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+            assert_eq!(byte3, array[2]);
+            assert_eq!(byte4, array[3]);
+
+            let reverted1 = u8s_to_i32(byte1, byte2, byte3, byte4);
+            let reverted2 = u8_tuple_to_i32(pair);
+            let reverted3 = u8_array_to_i32(array);
+            let reverted4 = u8_slice_to_i32(&array);
+
+            assert_eq!(int, reverted1);
+            assert_eq!(int, reverted2);
+            assert_eq!(int, reverted3);
+            assert_eq!(int, reverted4);
+
+            int += 123456;
+            counter += 1;
+        }
+    }
+
     #[test]
     fn test_bool_array_bit_io(){
         let mut output = BoolVecBitOutput::new(10);
@@ -148,9 +215,9 @@ mod tests {
     fn put_stuff_in_bit_output(output: &mut BitOutput){
         output.add_bools_from_slice(&[false, true, true, false, true]);
         output.add_i8(-125);
-        //output.add_u8(234);
+        output.add_u8(234);
         output.add_i16(-21345);
-        //output.add_u16(25565);
+        output.add_u16(25565);
         output.add_i32(2123456789);
 
         output.add_bool_slice(&[false, false, true, false, true, true]);
@@ -159,24 +226,44 @@ mod tests {
         output.add_bools_from_vec(&vec![false, false, false, true, false, true]);
         output.add_some_bools_from_slice(&[false, true, false, true, false], 1, 3);
         output.add_some_bools_from_vec(&vec![true, false, false, true], 1, 2);
+
+        output.add_i8_slice(&[-42, 11, 127, 100, 0, -21]);
+        output.add_i8_vec(&vec![36, -128, -45, 96]);
+        output.add_i8s_from_slice(&[111, -111, 35, 97, -69]);
+        output.add_i8s_from_vec(&vec![-1, -2, 1, 2, 72, 53]);
+        output.add_some_i8s_from_slice(&[-78, 88, 19, 58, -90], 1, 3);
+        output.add_some_i8s_from_vec(&vec![37, 83, 73, -65], 1, 2);
     }
 
     fn check_stuff_in_bit_input(input: &mut BitInput){
         assert_eq!(input.read_bools(5), vec![false, true, true, false, true]);
         assert_eq!(input.read_i8(), -125);
+        assert_eq!(input.read_u8(), 234);
         assert_eq!(input.read_i16(), -21345);
+        assert_eq!(input.read_u16(), 25565);
         assert_eq!(input.read_i32(), 2123456789);
 
         assert_eq!(input.read_bool_vec(), vec![false, false, true, false, true, true]);
         assert_eq!(input.read_bool_vec(), vec![true, true, false, false]);
         assert_eq!(input.read_bools(5), vec![true, false, true, false, true]);
         assert_eq!(input.read_bools(6), vec![false, false, false, true, false, true]);
-        let mut test_vec = vec![false; 3];
-        input.read_bools_to_vec(&mut test_vec, 0, 3);
-        assert_eq!(test_vec, vec![true, false, true]);
-        let mut test_slice = [true; 2];
-        input.read_bools_to_slice(&mut test_slice, 0, 2);
-        assert_eq!(test_slice, [false, false]);
+        let mut test_bool_vec = vec![false; 3];
+        input.read_bools_to_vec(&mut test_bool_vec, 0, 3);
+        assert_eq!(test_bool_vec, vec![true, false, true]);
+        let mut test_bool_slice = [true; 2];
+        input.read_bools_to_slice(&mut test_bool_slice, 0, 2);
+        assert_eq!(test_bool_slice, [false, false]);
+
+        assert_eq!(input.read_i8_vec(), vec![-42, 11, 127, 100, 0, -21]);
+        assert_eq!(input.read_i8_vec(), vec![36, -128, -45, 96]);
+        assert_eq!(input.read_i8s(5), vec![111, -111, 35, 97, -69]);
+        assert_eq!(input.read_i8s(6), vec![-1, -2, 1, 2, 72, 53]);
+        let mut test_i8_vec = vec![-4; 3];
+        input.read_i8s_to_vec(&mut test_i8_vec, 0, 3);
+        assert_eq!(test_i8_vec, vec![88, 19, 58]);
+        let mut test_i8_slice = [-6; 2];
+        input.read_i8s_to_slice(&mut test_i8_slice, 0, 2);
+        assert_eq!(test_i8_slice, [83, 73]);
     }
 
     #[test]
