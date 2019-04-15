@@ -533,7 +533,7 @@ pub fn u8_to_boolean_array(mut byte: u8) -> [bool; 8] {
 
 /**
  * Convert 2 i8 values to an i16 value. Every distinct pair of i8 values will be mapped 
- * to a another i16 value. This function can be used to convert the result of
+ * to another  i16 value. This function can be used to convert the result of
  * i16_to_i8_tuple, i16_to_i8_array or i16_to_i8_1 and i16_to_i8_2 back to the original
  * i16 value.
  */
@@ -543,7 +543,7 @@ pub fn i8s_to_i16(byte1: i8, byte2: i8) -> i16 {
 
 /**
  * Convert a pair of i8 values to an i16 value. Every distinct pair of i8 values will be mapped 
- * to a another i16 value. This function can be used to convert the result of
+ * to another  i16 value. This function can be used to convert the result of
  * i16_to_i8_tuple, i16_to_i8_array or i16_to_i8_1 and i16_to_i8_2 back to the original
  * i16 value.
  */
@@ -553,7 +553,7 @@ pub fn i8_tuple_to_i16(bytes: (i8, i8)) -> i16 {
 
 /**
  * Convert an array containing 2 i8 values to a i16 value. Every distinct pair of i8 
- * values will be mapped to a another i16 value. This function can be used to convert 
+ * values will be mapped to another  i16 value. This function can be used to convert 
  * the result of i16_to_i8_array, i16_to_i8_tuple or i16_to_i8_1 and i16_to_i8_2 back 
  * the original i16 value.
  */
@@ -563,7 +563,7 @@ pub fn i8_array_to_i16(bytes: [i8; 2]) -> i16 {
 
 /**
  * Convert a slice containing 2 i8 values to a i16 value. Every distinct pair of i8 
- * values will be mapped to a another i16 value. This function can be used to convert 
+ * values will be mapped to another  i16 value. This function can be used to convert 
  * the result of i16_to_i8_array, i16_to_i8_tuple or i16_to_i8_1 and i16_to_i8_2 back 
  * the original i16 value.
  */
@@ -617,7 +617,7 @@ pub fn i16_to_i8_array(int16: i16) -> [i8; 2] {
 
 /**
  * Convert 2 i8 values to an u16 value. Every distinct pair of i8 values will be mapped 
- * to a another u16 value. This function can be used to convert the result of
+ * to another  u16 value. This function can be used to convert the result of
  * u16_to_i8_tuple, u16_to_i8_array or u16_to_i8_1 and u16_to_i8_2 back to the original
  * u16 value.
  */
@@ -627,7 +627,7 @@ pub fn i8s_to_u16(byte1: i8, byte2: i8) -> u16 {
 
 /**
  * Convert a pair of i8 values to an u16 value. Every distinct pair of i8 values will be mapped 
- * to a another u16 value. This function can be used to convert the result of
+ * to another  u16 value. This function can be used to convert the result of
  * u16_to_i8_tuple, u16_to_i8_array or u16_to_i8_1 and u16_to_i8_2 back to the original
  * u16 value.
  */
@@ -637,7 +637,7 @@ pub fn i8_tuple_to_u16(bytes: (i8, i8)) -> u16 {
 
 /**
  * Convert an array containing 2 i8 values to a u16 value. Every distinct pair of i8 
- * values will be mapped to a another u16 value. This function can be used to convert 
+ * values will be mapped to another  u16 value. This function can be used to convert 
  * the result of u16_to_i8_array, u16_to_i8_tuple or u16_to_i8_1 and u16_to_i8_2 back 
  * the original u16 value.
  */
@@ -647,7 +647,7 @@ pub fn i8_array_to_u16(bytes: [i8; 2]) -> u16 {
 
 /**
  * Convert a slice containing 2 i8 values to a u16 value. Every distinct pair of i8 
- * values will be mapped to a another u16 value. This function can be used to convert 
+ * values will be mapped to another  u16 value. This function can be used to convert 
  * the result of u16_to_i8_array, u16_to_i8_tuple or u16_to_i8_1 and u16_to_i8_2 back 
  * the original u16 value.
  */
@@ -922,4 +922,398 @@ pub fn u32_to_i8_tuple(int32: u32) -> (i8, i8, i8, i8) {
  */
 pub fn u32_to_i8_array(int32: u32) -> [i8; 4] {
     [u32_to_i8_1(int32), u32_to_i8_2(int32), u32_to_i8_3(int32), u32_to_i8_4(int32)]
+}
+
+
+/**
+ * Convert 2 u8 values to an i16 value. Every distinct pair of u8 values will be mapped 
+ * to another i16 value. This function can be used to convert the result of
+ * i16_to_u8_tuple, i16_to_u8_array or i16_to_u8_1 and i16_to_u8_2 back to the original
+ * i16 value.
+ */
+pub fn u8s_to_i16(byte1: u8, byte2: u8) -> i16 {
+    ((byte2 as i16) << 8) | ((byte1 as i16) & 0xff)
+}
+
+/**
+ * Convert a pair of u8 values to an i16 value. Every distinct pair of u8 values will be mapped 
+ * to another i16 value. This function can be used to convert the result of
+ * i16_to_u8_tuple, i16_to_u8_array or i16_to_u8_1 and i16_to_u8_2 back to the original
+ * i16 value.
+ */
+pub fn u8_tuple_to_i16(bytes: (u8, u8)) -> i16 {
+    u8s_to_i16(bytes.0, bytes.1)
+}
+
+/**
+ * Convert an array containing 2 u8 values to a i16 value. Every distinct pair of u8 
+ * values will be mapped to another i16 value. This function can be used to convert 
+ * the result of i16_to_u8_array, i16_to_u8_tuple or i16_to_u8_1 and i16_to_u8_2 back 
+ * the original i16 value.
+ */
+pub fn u8_array_to_i16(bytes: [u8; 2]) -> i16 {
+    u8s_to_i16(bytes[0], bytes[1])
+}
+
+/**
+ * Convert a slice containing 2 u8 values to a i16 value. Every distinct pair of u8 
+ * values will be mapped to another i16 value. This function can be used to convert 
+ * the result of i16_to_u8_array, i16_to_u8_tuple or i16_to_u8_1 and i16_to_u8_2 back 
+ * the original i16 value.
+ */
+pub fn u8_slice_to_i16(bytes: &[u8; 2]) -> i16 {
+    u8s_to_i16(bytes[0], bytes[1])
+}
+
+/**
+ * The first function to convert an i16 value to u8 values. This function is useless
+ * without the function i16_to_u8_2, that converts the i16 value to the other
+ * u8 value. These 2 functions together will map every distinct i16 value to another
+ * pair of u8 values. The original i16 value can be restored with the function
+ * u8s_to_i16(i16_to_u8_1(original), i16_to_u8_2(original)). Similarly, the original
+ * value can be restored by using u8_tuple_to_i16 and u8_array_to_i16.
+ */
+pub fn i16_to_u8_1(int16: i16) -> u8 {
+    int16 as u8
+}
+
+/**
+ * The second function to convert an i16 value to u8 values. This function is useless
+ * without the function i16_to_u8_1, that converts the i16 value to the other
+ * u8 value. These 2 functions together will map every distinct i16 value to another
+ * pair of u8 values. The original i16 value can be restored with the function
+ * u8s_to_i16(i16_to_u8_1(original), i16_to_u8_2(original)). Similarly, the original
+ * value can be restored by using u8_tuple_to_i16, u8_array_to_i16 and u8_slice_to_i16.
+ */
+pub fn i16_to_u8_2(int16: i16) -> u8 {
+    (int16 >> 8) as u8
+}
+
+/**
+ * Converts an i16 value to a pair of u8 values. Every distinct i16 value will be mapped
+ * to another pair of u8 values. This function can be used to store an i16 value on disk
+ * or to send it over the network. The original i16 value can be restored using
+ * u8_tuple_to_i16, u8s_to_i16, u8_array_to_i16 or u8_slice_to_i16.
+ */
+pub fn i16_to_u8_tuple(int16: i16) -> (u8, u8) {
+    (i16_to_u8_1(int16), i16_to_u8_2(int16))
+}
+
+/**
+ * Converts an i16 value to an array of u8 values. Every distinct i16 value will be mapped
+ * to another array of u8 values. This function can be used to store an i16 value on disk
+ * or to send it over the network. The original i16 value can be restored using
+ * u8_array_to_i16, u8_slice_to_i16, u8s_to_i16 or u8_tuple_to_i16.
+ */
+pub fn i16_to_u8_array(int16: i16) -> [u8; 2] {
+    [i16_to_u8_1(int16), i16_to_u8_2(int16)]
+}
+
+/**
+ * Convert 2 u8 values to an u16 value. Every distinct pair of u8 values will be mapped 
+ * to another  u16 value. This function can be used to convert the result of
+ * u16_to_u8_tuple, u16_to_u8_array or u16_to_u8_1 and u16_to_u8_2 back to the original
+ * u16 value.
+ */
+pub fn u8s_to_u16(byte1: u8, byte2: u8) -> u16 {
+    ((byte2 as u16) << 8) | ((byte1 as u16) & 0xff)
+}
+
+/**
+ * Convert a pair of u8 values to an u16 value. Every distinct pair of u8 values will be mapped 
+ * to another  u16 value. This function can be used to convert the result of
+ * u16_to_u8_tuple, u16_to_u8_array or u16_to_u8_1 and u16_to_u8_2 back to the original
+ * u16 value.
+ */
+pub fn u8_tuple_to_u16(bytes: (u8, u8)) -> u16 {
+    u8s_to_u16(bytes.0, bytes.1)
+}
+
+/**
+ * Convert an array containing 2 u8 values to a u16 value. Every distinct pair of u8 
+ * values will be mapped to another  u16 value. This function can be used to convert 
+ * the result of u16_to_u8_array, u16_to_u8_tuple or u16_to_u8_1 and u16_to_u8_2 back 
+ * the original u16 value.
+ */
+pub fn u8_array_to_u16(bytes: [u8; 2]) -> u16 {
+    u8s_to_u16(bytes[0], bytes[1])
+}
+
+/**
+ * Convert a slice containing 2 u8 values to a u16 value. Every distinct pair of u8 
+ * values will be mapped to another  u16 value. This function can be used to convert 
+ * the result of u16_to_u8_array, u16_to_u8_tuple or u16_to_u8_1 and u16_to_u8_2 back 
+ * the original u16 value.
+ */
+pub fn u8_slice_to_u16(bytes: &[u8; 2]) -> u16 {
+    u8s_to_u16(bytes[0], bytes[1])
+}
+
+/**
+ * The first function to convert an u16 value to u8 values. This function is useless
+ * without the function u16_to_u8_2, that converts the u16 value to the other
+ * u8 value. These 2 functions together will map every distinct u16 value to another
+ * pair of u8 values. The original u16 value can be restored with the function
+ * u8s_to_u16(u16_to_u8_1(original), u16_to_u8_2(original)). Similarly, the original
+ * value can be restored by using u8_tuple_to_u16 and u8_array_to_u16.
+ */
+pub fn u16_to_u8_1(int16: u16) -> u8 {
+    int16 as u8
+}
+
+/**
+ * The second function to convert an u16 value to u8 values. This function is useless
+ * without the function u16_to_u8_1, that converts the u16 value to the other
+ * u8 value. These 2 functions together will map every distinct u16 value to another
+ * pair of u8 values. The original u16 value can be restored with the function
+ * u8s_to_u16(u16_to_u8_1(original), u16_to_u8_2(original)). Similarly, the original
+ * value can be restored by using u8_tuple_to_u16, u8_array_to_u16 and u8_slice_to_u16.
+ */
+pub fn u16_to_u8_2(int16: u16) -> u8 {
+    (int16 >> 8) as u8
+}
+
+/**
+ * Converts an u16 value to a pair of u8 values. Every distinct u16 value will be mapped
+ * to another pair of u8 values. This function can be used to store an u16 value on disk
+ * or to send it over the network. The original u16 value can be restored using
+ * u8_tuple_to_u16, u8s_to_u16, u8_array_to_u16 or u8_slice_to_u16.
+ */
+pub fn u16_to_u8_tuple(int16: u16) -> (u8, u8) {
+    (u16_to_u8_1(int16), u16_to_u8_2(int16))
+}
+
+/**
+ * Converts an u16 value to an array of u8 values. Every distinct u16 value will be mapped
+ * to another array of u8 values. This function can be used to store an u16 value on disk
+ * or to send it over the network. The original u16 value can be restored using
+ * u8_array_to_u16, u8_slice_to_u16, u8s_to_u16 or u8_tuple_to_u16.
+ */
+pub fn u16_to_u8_array(int16: u16) -> [u8; 2] {
+    [u16_to_u8_1(int16), u16_to_u8_2(int16)]
+}
+
+/**
+ * Convert 4 u8 values to an i32 value. Every distinct tuple of u8 values will be mapped 
+ * to another i32 value. This function can be used to convert the result of
+ * i32_to_u8_tuple, i32_to_u8_array or i32_to_u8_1...4 back to the original i32 value.
+ */
+pub fn u8s_to_i32(byte1: u8, byte2: u8, byte3: u8, byte4: u8) -> i32 {
+    ((byte4 as i32) << 24) | (((byte3 as i32) & 0xff) << 16) | (((byte2 as i32) & 0xFF) << 8) | ((byte1 as i32) & 0xFF)
+}
+
+/**
+ * Convert a tuple of u8 values to an i32 value. Every distinct pair of u8 values will be mapped 
+ * to another i32 value. This function can be used to convert the result of
+ * i32_to_u8_tuple, i32_to_u8_array or i32_to_u8_1...4 back to the original i32 value.
+ */
+pub fn u8_tuple_to_i32(bytes: (u8, u8, u8, u8)) -> i32 {
+    u8s_to_i32(bytes.0, bytes.1, bytes.2, bytes.3)
+}
+
+/**
+ * Convert an array containing 4 u8 values to a i32 value. Every distinct tuple of u8 
+ * values will be mapped to another i32 value. This function can be used to convert 
+ * the result of i32_to_u8_array, i32_to_u8_tuple or i16_to_u8_1...4 back 
+ * the original i32 value.
+ */
+pub fn u8_array_to_i32(bytes: [u8; 4]) -> i32 {
+    u8s_to_i32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * Convert a slice containing 4 u8 values to a i32 value. Every distinct pair of u8 
+ * values will be mapped to another i32 value. This function can be used to convert 
+ * the result of i32_to_u8_array, i32_to_u8_tuple or i32_to_u8_1...4 back 
+ * the original i32 value.
+ */
+pub fn u8_slice_to_i32(bytes: &[u8; 4]) -> i32 {
+    u8s_to_i32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * Converts a vector containing 4 u8 values to an i32 value. Every distinct pair of u8
+ * values will be mapped to another i32 value. This function can be used to convert 
+ * the result of i32_to_u8_array, i32_to_u8_tuple or i32_to_u8_1...4 back 
+ * the original i32 value.
+ */
+pub fn u8_vec_to_i32(bytes: &Vec<u8>) -> i32 {
+    u8s_to_i32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * The first function to convert an i32 value to u8 values. This function is useless
+ * without the other i32_to_u8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of u8 values. The original i32 value can be 
+ * restored with the function u8s_to_i32. Similarly, the original
+ * value can be restored by using u8_tuple_to_i32, u8_array_to_i32 and u8_slice_to_i32.
+ */
+pub fn i32_to_u8_1(int32: i32) -> u8 {
+    int32 as u8
+}
+
+/**
+ * The second function to convert an i32 value to u8 values. This function is useless
+ * without the other i32_to_u8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of u8 values. The original i32 value can be 
+ * restored with the function u8s_to_i32. Similarly, the original
+ * value can be restored by using u8_tuple_to_i32, u8_array_to_i32 and u8_slice_to_i32.
+ */
+pub fn i32_to_u8_2(int32: i32) -> u8 {
+    (int32 >> 8) as u8
+}
+
+/**
+ * The third function to convert an i32 value to u8 values. This function is useless
+ * without the other i32_to_u8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of u8 values. The original i32 value can be 
+ * restored with the function u8s_to_i32. Similarly, the original
+ * value can be restored by using u8_tuple_to_i32, u8_array_to_i32 and u8_slice_to_i32.
+ */
+pub fn i32_to_u8_3(int32: i32) -> u8 {
+    (int32 >> 16) as u8
+}
+
+/**
+ * The fourth function to convert an i32 value to u8 values. This function is useless
+ * without the other i32_to_u8_ functions. These 4 functions together will map every 
+ * distinct i32 value to another tuple of u8 values. The original i32 value can be 
+ * restored with the function u8s_to_i32. Similarly, the original
+ * value can be restored by using u8_tuple_to_i32, u8_array_to_i32 and u8_slice_to_i32.
+ */
+pub fn i32_to_u8_4(int32: i32) -> u8 {
+    (int32 >> 24) as u8
+}
+
+/**
+ * Converts an i32 value to a tuple of u8 values. Every distinct i32 value will be mapped
+ * to another pair of u8 values. This function can be used to store an i32 value on disk
+ * or to send it over the network. The original i32 value can be restored using
+ * u8_tuple_to_i32, u8s_to_i32, u8_array_to_i32 or u8_slice_to_i32.
+ */
+pub fn i32_to_u8_tuple(int32: i32) -> (u8, u8, u8, u8) {
+    (i32_to_u8_1(int32), i32_to_u8_2(int32), i32_to_u8_3(int32), i32_to_u8_4(int32))
+}
+
+/**
+ * Converts an i32 value to an array of u8 values. Every distinct i32 value will be mapped
+ * to another array of u8 values. This function can be used to store an i32 value on disk
+ * or to send it over the network. The original i32 value can be restored using
+ * u8_array_to_i32, u8_slice_to_i32, u8s_to_i32 or u8_tuple_to_i32.
+ */
+pub fn i32_to_u8_array(int32: i32) -> [u8; 4] {
+    [i32_to_u8_1(int32), i32_to_u8_2(int32), i32_to_u8_3(int32), i32_to_u8_4(int32)]
+}
+
+
+/**
+ * Convert 4 u8 values to an u32 value. Every distinct tuple of u8 values will be mapped 
+ * to another u32 value. This function can be used to convert the result of
+ * u32_to_u8_tuple, u32_to_u8_array or u32_to_u8_1...4 back to the original u32 value.
+ */
+pub fn u8s_to_u32(byte1: u8, byte2: u8, byte3: u8, byte4: u8) -> u32 {
+    ((byte4 as u32) << 24) | (((byte3 as u32) & 0xff) << 16) | (((byte2 as u32) & 0xFF) << 8) | ((byte1 as u32) & 0xFF)
+}
+
+/**
+ * Convert a tuple of u8 values to an u32 value. Every distinct pair of u8 values will be mapped 
+ * to another u32 value. This function can be used to convert the result of
+ * u32_to_u8_tuple, u32_to_u8_array or u32_to_u8_1...4 back to the original u32 value.
+ */
+pub fn u8_tuple_to_u32(bytes: (u8, u8, u8, u8)) -> u32 {
+    u8s_to_u32(bytes.0, bytes.1, bytes.2, bytes.3)
+}
+
+/**
+ * Convert an array containing 4 u8 values to a u32 value. Every distinct tuple of u8 
+ * values will be mapped to another u32 value. This function can be used to convert 
+ * the result of u32_to_u8_array, u32_to_u8_tuple or i16_to_u8_1...4 back 
+ * the original u32 value.
+ */
+pub fn u8_array_to_u32(bytes: [u8; 4]) -> u32 {
+    u8s_to_u32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * Convert a slice containing 4 u8 values to a u32 value. Every distinct pair of u8 
+ * values will be mapped to another u32 value. This function can be used to convert 
+ * the result of u32_to_u8_array, u32_to_u8_tuple or u32_to_u8_1...4 back 
+ * the original u32 value.
+ */
+pub fn u8_slice_to_u32(bytes: &[u8; 4]) -> u32 {
+    u8s_to_u32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * Converts a vector containing 4 u8 values to an u32 value. Every distinct pair of u8
+ * values will be mapped to another u32 value. This function can be used to convert 
+ * the result of u32_to_u8_array, u32_to_u8_tuple or u32_to_u8_1...4 back 
+ * the original u32 value.
+ */
+pub fn u8_vec_to_u32(bytes: &Vec<u8>) -> u32 {
+    u8s_to_u32(bytes[0], bytes[1], bytes[2], bytes[3])
+}
+
+/**
+ * The first function to convert an u32 value to u8 values. This function is useless
+ * without the other u32_to_u8_ functions. These 4 functions together will map every 
+ * distinct u32 value to another tuple of u8 values. The original u32 value can be 
+ * restored with the function u8s_to_u32. Similarly, the original
+ * value can be restored by using u8_tuple_to_u32, u8_array_to_u32 and u8_slice_to_u32.
+ */
+pub fn u32_to_u8_1(int32: u32) -> u8 {
+    int32 as u8
+}
+
+/**
+ * The second function to convert an u32 value to u8 values. This function is useless
+ * without the other u32_to_u8_ functions. These 4 functions together will map every 
+ * distinct u32 value to another tuple of u8 values. The original u32 value can be 
+ * restored with the function u8s_to_u32. Similarly, the original
+ * value can be restored by using u8_tuple_to_u32, u8_array_to_u32 and u8_slice_to_u32.
+ */
+pub fn u32_to_u8_2(int32: u32) -> u8 {
+    (int32 >> 8) as u8
+}
+
+/**
+ * The third function to convert an u32 value to u8 values. This function is useless
+ * without the other u32_to_u8_ functions. These 4 functions together will map every 
+ * distinct u32 value to another tuple of u8 values. The original u32 value can be 
+ * restored with the function u8s_to_u32. Similarly, the original
+ * value can be restored by using u8_tuple_to_u32, u8_array_to_u32 and u8_slice_to_u32.
+ */
+pub fn u32_to_u8_3(int32: u32) -> u8 {
+    (int32 >> 16) as u8
+}
+
+/**
+ * The fourth function to convert an u32 value to u8 values. This function is useless
+ * without the other u32_to_u8_ functions. These 4 functions together will map every 
+ * distinct u32 value to another tuple of u8 values. The original u32 value can be 
+ * restored with the function u8s_to_u32. Similarly, the original
+ * value can be restored by using u8_tuple_to_u32, u8_array_to_u32 and u8_slice_to_u32.
+ */
+pub fn u32_to_u8_4(int32: u32) -> u8 {
+    (int32 >> 24) as u8
+}
+
+/**
+ * Converts an u32 value to a tuple of u8 values. Every distinct u32 value will be mapped
+ * to another pair of u8 values. This function can be used to store an u32 value on disk
+ * or to send it over the network. The original u32 value can be restored using
+ * u8_tuple_to_u32, u8s_to_u32, u8_array_to_u32 or u8_slice_to_u32.
+ */
+pub fn u32_to_u8_tuple(int32: u32) -> (u8, u8, u8, u8) {
+    (u32_to_u8_1(int32), u32_to_u8_2(int32), u32_to_u8_3(int32), u32_to_u8_4(int32))
+}
+
+/**
+ * Converts an u32 value to an array of u8 values. Every distinct u32 value will be mapped
+ * to another array of u8 values. This function can be used to store an u32 value on disk
+ * or to send it over the network. The original u32 value can be restored using
+ * u8_array_to_u32, u8_slice_to_u32, u8s_to_u32 or u8_tuple_to_u32.
+ */
+pub fn u32_to_u8_array(int32: u32) -> [u8; 4] {
+    [u32_to_u8_1(int32), u32_to_u8_2(int32), u32_to_u8_3(int32), u32_to_u8_4(int32)]
 }
