@@ -77,7 +77,7 @@ pub trait BitOutput {
      */
     fn add_direct_u16(&mut self, integer: u16){
         self.add_direct_i8(u16_to_i8_1(integer));
-        self.add_direct_i8(u16_to_i8_1(integer));
+        self.add_direct_i8(u16_to_i8_2(integer));
     }
 
     /**
