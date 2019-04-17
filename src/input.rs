@@ -710,3 +710,75 @@ impl<'a> BitInput for BoolSliceBitInput<'a> {
         self.read_index = self.bools.len();
     }
 }
+
+pub struct I8VecBitInput {
+
+    vector: Vec<i8>,
+    byte_index: usize,
+    bool_index: usize
+}
+
+impl BitInput for I8VecBitInput {
+
+    fn read_direct_bool(&mut self) -> bool {
+        if self.bool_index == 7 {
+            self.bool_index = 0;
+            let result_byte = self.vector[self.byte_index];
+            self.byte_index += 1;
+            return result_byte >= 0;
+        } else {
+            let result = i8_to_bool_array(self.vector[self.byte_index])[self.bool_index];
+            self.bool_index += 1;
+            return result;
+        }
+    }
+
+    fn read_direct_i8(&mut self) -> i8 {
+        if self.bool_index == 0 {
+            let result = self.vector[self.byte_index];
+            self.byte_index += 1;
+            return result;
+        } else {
+            let mut bools = [false; 8];
+            let first_bools = i8_to_bool_array(self.vector[self.byte_index]);
+            self.byte_index += 1;
+            let second_bools = i8_to_bool_array(self.vector[self.byte_index]);
+            let mut index = 0;
+            while self.bool_index < 8 {
+                bools[index] = first_bools[self.bool_index];
+                index += 1;
+                self.bool_index += 1;
+            }
+            self.bool_index = 0;
+            while index < 8 {
+                bools[index] = second_bools[self.bool_index];
+                index += 1;
+                self.bool_index += 1;
+            }
+            return bool_array_to_i8(bools);
+        }
+    }
+
+    fn ensure_extra_capacity(&mut self, boolean_amount: usize){
+        let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
+        if remaining < boolean_amount {
+            panic!("{} more booleans should be readable, but we only have {} left", boolean_amount, remaining);
+        }
+    }
+
+    fn terminate(&mut self){
+        self.vector.clear();
+        self.vector.shrink_to_fit();
+    }
+}
+
+impl I8VecBitInput {
+
+    pub fn new(vector: Vec<i8>) -> I8VecBitInput {
+        I8VecBitInput {
+            vector: vector,
+            byte_index: 0,
+            bool_index: 0
+        }
+    }
+}

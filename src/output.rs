@@ -944,3 +944,110 @@ impl std::fmt::Debug for BoolVecBitOutput {
         write!(f, "BoolArrayBitOutput({:?} with capacity {})", self.vector, self.vector.capacity())
     }
 }
+
+/**
+ * An implementation of BitOutput that uses a Vec<i8> to store its data. This should be much more memory efficient that
+ * the BoolVecBitOutput because computers use surprisingly much data to store a boolean vector.
+ */
+pub struct I8VecBitOutput {
+
+    /**
+     * The backing vector of this I8VecBitOutput. This is public because it can be quite convenient for the owner of
+     * this bit output. This vector should usually not be accessed until all data has been written and the data is about
+     * to be stored or sent. Accessing this vector directly is faster than using to_i8_vector() because it doesn't need
+     * to clone the vector.
+     * 
+     * This vector could have more capacity than necessary if the terminate() method of this bit output has not (yet)
+     * been called.
+     */
+    pub vector: Vec<i8>,
+    byte_index: usize,
+    bool_index: usize
+}
+
+impl BitOutput for I8VecBitOutput {
+
+    fn add_direct_bool(&mut self, value: bool){
+        let mut bools = i8_to_bool_array(self.vector[self.byte_index]);
+        bools[self.bool_index] = value;
+        self.bool_index += 1;
+        self.vector[self.byte_index] = bool_array_to_i8(bools);
+        if self.bool_index == 8 {
+            self.bool_index = 0;
+            self.byte_index += 1;
+            self.vector.push(0);
+        }
+    }
+
+    fn add_direct_i8(&mut self, value: i8){
+        if self.bool_index == 0 {
+            self.vector.push(value);
+            self.byte_index += 1;
+        } else {
+            let bool_values = i8_to_bool_array(value);
+            let mut value_index = 0;
+            let mut current = i8_to_bool_array(self.vector[self.byte_index]);
+            let mut next = [false; 8];
+            while self.bool_index < 8 {
+                current[self.bool_index] = bool_values[value_index];
+                value_index += 1;
+                self.bool_index += 1;
+            }
+            self.bool_index = 0;
+            while value_index < 8 {
+                next[self.bool_index] = bool_values[value_index];
+                self.bool_index += 1;
+                value_index += 1;
+            }
+            self.vector[self.byte_index] = bool_array_to_i8(current);
+            self.vector.push(bool_array_to_i8(next));
+            self.byte_index += 1;
+        }
+    }
+
+    fn ensure_extra_capacity(&mut self, bool_amount: usize){
+        let mut extra = bool_amount / 8;
+        if bool_amount - extra * 8 + self.bool_index >= 8 {
+			extra += 1;
+		}
+        self.vector.reserve(extra);
+    }
+
+    fn terminate(&mut self){
+        self.vector.shrink_to_fit();
+    }
+}
+
+impl I8VecBitOutput {
+
+    /**
+     * Creates a new instance of I8VecBitOutput with the given capacity in bytes. Please try to use a good capacity because
+     * that will improve the performance and memory usage of this instance.
+     */
+    pub fn with_capacity(capacity: usize) -> I8VecBitOutput {
+        let mut vector = Vec::with_capacity(capacity);
+        vector.push(0);
+        I8VecBitOutput {
+            vector: vector,
+            byte_index: 0,
+            bool_index: 0
+        }
+    }
+
+    /**
+     * Returns a copy of the vector of this bit output. It will have exactly the required length and modifications to the
+     * returned vector will not affect the vector of this bit output.
+     * If you don't want to copy the vector of this bit output, you can directly access the vector of this struct instead,
+     * but use it carefully.
+     */
+    pub fn to_i8_vector(&self) -> Vec<i8> {
+        self.vector.clone()
+    }
+}
+
+impl std::fmt::Debug for I8VecBitOutput {
+
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "I8VecBitOutput({:?} with capacity {})", self.vector, self.vector.capacity())
+    }
+}

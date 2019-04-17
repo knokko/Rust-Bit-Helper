@@ -212,6 +212,16 @@ mod tests {
         check_stuff_in_bit_input(&mut input);
     }
 
+    #[test]
+    fn test_i8_vec_bit_io(){
+        let mut output = I8VecBitOutput::with_capacity(10);
+        put_stuff_in_bit_output(&mut output);
+        output.terminate();
+        let mut input = I8VecBitInput::new(output.vector);
+        check_stuff_in_bit_input(&mut input);
+        input.terminate();
+    }
+
     fn put_stuff_in_bit_output(output: &mut BitOutput){
         output.add_bools_from_slice(&[false, true, true, false, true]);
         output.add_i8(-125);
