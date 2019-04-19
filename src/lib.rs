@@ -222,6 +222,83 @@ mod tests {
         input.terminate();
     }
 
+    #[test]
+
+    fn test_i8_vec_bit_output_capacity(){
+        let mut output = I8VecBitOutput::with_capacity(0);
+        assert_eq!(output.vector.capacity(), 0);
+        output.ensure_extra_capacity(64);
+        let old_capacity = output.vector.capacity();
+        assert!(old_capacity >= 8);
+        output.add_i32(474857);
+        output.add_u32(3478);
+        assert_eq!(old_capacity, output.vector.capacity());
+
+        output = I8VecBitOutput::with_capacity(4);
+        assert_eq!(output.vector.capacity(), 4);
+        output.add_i32(-18273);
+        assert_eq!(output.vector.capacity(), 4);
+
+        assert_eq!(output.to_i8_vector().len(), 4);
+        output.add_bool(true);
+        assert_eq!(output.to_i8_vector().len(), 5);
+    }
+
+    #[test]
+    fn test_u8_vec_bit_io(){
+        let mut output = U8VecBitOutput::with_capacity(10);
+        put_stuff_in_bit_output(&mut output);
+        output.terminate();
+        let mut input = U8VecBitInput::new(output.vector);
+        check_stuff_in_bit_input(&mut input);
+        input.terminate();
+    }
+
+    #[test]
+    fn test_u8_vec_bit_output_capacity(){
+        let mut output = U8VecBitOutput::with_capacity(0);
+        assert_eq!(output.vector.capacity(), 0);
+        output.ensure_extra_capacity(32);
+        let old_capacity = output.vector.capacity();
+        assert!(old_capacity >= 4);
+        output.add_i8s_from_vec(&vec![23, -97, 100, 45]);
+        assert_eq!(old_capacity, output.vector.capacity());
+
+        output = U8VecBitOutput::with_capacity(4);
+        assert_eq!(output.vector.capacity(), 4);
+        output.add_direct_u16(54673);
+        output.add_u16(27346);
+        assert_eq!(output.vector.capacity(), 4);
+
+        assert_eq!(output.to_u8_vector().len(), 4);
+        output.add_bool(true);
+        assert_eq!(output.to_u8_vector().len(), 5);
+    }
+
+    #[test]
+
+    fn test_cross_i8_u8_vec_bit_io(){
+        let mut u_output = U8VecBitOutput::with_capacity(10);
+        put_stuff_in_bit_output(&mut u_output);
+        u_output.terminate();
+        unsafe {
+            let i_vector = std::mem::transmute(u_output.vector);
+            let mut i_input = I8VecBitInput::new(i_vector);
+            check_stuff_in_bit_input(&mut i_input);
+            i_input.terminate();
+        }
+
+        let mut i_output = I8VecBitOutput::with_capacity(10);
+        put_stuff_in_bit_output(&mut i_output);
+        i_output.terminate();
+        unsafe {
+            let u_vector = std::mem::transmute(i_output.vector);
+            let mut u_input = U8VecBitInput::new(u_vector);
+            check_stuff_in_bit_input(&mut u_input);
+            u_input.terminate();
+        }
+    }
+
     fn put_stuff_in_bit_output(output: &mut BitOutput){
         output.add_bools_from_slice(&[false, true, true, false, true]);
         output.add_i8(-125);
