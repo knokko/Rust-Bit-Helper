@@ -636,9 +636,6 @@ pub trait BitOutput {
         self.add_direct_i16_vec(i16s);
     }
 
-
-
-
     /**
      * Add all i32s in the slice to this BitOutput without checking if there is enough capacity left in this
      * BitOutput. This is just a shortcut for adding all i32s one by one. The amount of i32s is NOT stored, 
@@ -815,6 +812,540 @@ pub trait BitOutput {
     fn add_i32_vec(&mut self, i32s: &Vec<i32>){
         self.ensure_extra_capacity(32 + 32 * i32s.len());
         self.add_direct_i32_vec(i32s);
+    }
+
+    /**
+     * Add all u8s in the slice to this BitOutput without checking if there is enough capacity left in this
+     * BitOutput. This is just a shortcut for adding all u8s one by one. The amount of u8s is NOT stored, 
+     * so make sure your application knows how many u8s were stored. You should always use
+     * ensure_extra_capacity before calling this function.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_direct_u8_slice instead.
+     */
+    fn add_direct_u8s_from_slice(&mut self, u8s: &[u8]){
+        for value in u8s {
+            self.add_direct_u8(*value);
+        }
+    }
+
+    /**
+     * Add all u8s in the vector to this BitOutput without checking if there is enough capacity left in this
+     * BitOutput. This is just a shortcut for adding all u8s one by one. The amount of u8s is NOT stored, 
+     * so make sure your application knows how many u8s were stored. You should always use
+     * ensure_extra_capacity before calling this function.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_direct_u8_vec instead.
+     */
+    fn add_direct_u8s_from_vec(&mut self, u8s: &Vec<u8>){
+        for value in u8s {
+            self.add_direct_u8(*value);
+        }
+    }
+
+    /**
+     * Add the u8s in the range [start_index, start_index + amount> from u8s to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all u8s in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u8s were stored. Also make sure to use ensure_extra_capacity before calling this
+     * function.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     */
+    fn add_direct_some_u8s_from_slice(&mut self, u8s: &[u8], start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_u8(u8s[index]);
+        }
+    }
+
+    /**
+     * Add the u8s in the range [start_index, start_index + amount> from u8s to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all u8s in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u8s were stored. Also make sure to use ensure_extra_capacity before calling this
+     * function.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     */
+    fn add_direct_some_u8s_from_vec(&mut self, u8s: &Vec<u8>, start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_u8(u8s[index]);
+        }
+    }
+
+    /**
+     * Add the length of the u8 slice and the values of all u8s in the slice without
+     * checking the capacity of this BitOutput. Always call ensure_extra_capacity before
+     * using this function.
+     * 
+     * The mirror function of this function is read_u8_vec. There is no read_u8_array
+     * or read_u8_slice because array sizes in Rust must be known at compile time.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_u8_slice(&mut self, u8s: &[u8]){
+        self.add_direct_u32(u8s.len() as u32);
+        self.add_direct_u8s_from_slice(u8s);
+    }
+
+    /**
+     * Add the length of the u8 vector and the values of all u8s in the vector without
+     * checking the capacity of this BitOutput. You should use ensure_extra_capacity before
+     * calling this function.
+     * 
+     * The mirror function of this function is read_u8_vec.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_u8_vec(&mut self, u8s: &Vec<u8>){
+        self.add_direct_u32(u8s.len() as u32);
+        self.add_direct_u8s_from_vec(u8s);
+    }
+
+    /**
+     * Add all u8s in the slice to this BitOutput. This faster than adding all u8s one by 
+     * one because the capacity only needs to be checked once. The amount of u8s is NOT stored, 
+     * so make sure your application knows how many u8s were stored.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_u8_slice instead.
+     */
+    fn add_u8s_from_slice(&mut self, u8s: &[u8]){
+        self.ensure_extra_capacity(8 * u8s.len());
+        self.add_direct_u8s_from_slice(u8s);
+    }
+
+    /**
+     * Add all u8s in the vector to this BitOutput. This is faster than adding all u8s one by one
+     * because the capacity only needs to be checked once. The amount of u8s is NOT stored, 
+     * so make sure your application knows how many u8s were stored.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_u8_vec instead.
+     */
+    fn add_u8s_from_vec(&mut self, u8s: &Vec<u8>){
+        self.ensure_extra_capacity(8 * u8s.len());
+        self.add_direct_u8s_from_vec(u8s);
+    }
+
+    /**
+     * Add the u8s in the range [start_index, start_index + amount> from u8s to this BitOutput. This is 
+     * faster than adding all u8s in that range one by one because the capacity only needs to be checked once. 
+     * The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u8s were stored.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     */
+    fn add_some_u8s_from_slice(&mut self, u8s: &[u8], start_index: usize, amount: usize){
+        self.ensure_extra_capacity(8 * amount);
+        self.add_direct_some_u8s_from_slice(u8s, start_index, amount);
+    }
+
+    /**
+     * Add the u8s in the range [start_index, start_index + amount> from u8s to this BitOutput. This is 
+     * faster than adding all u8s in that range one by one because the capacity only needs to be checked once. 
+     * The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u8s were stored.
+     * 
+     * The mirror functions of this funcion are read_u8s, read_u8s_to_slice and read_u8s_to_vec.
+     */
+    fn add_some_u8s_from_vec(&mut self, u8s: &Vec<u8>, start_index: usize, amount: usize){
+        self.ensure_extra_capacity(8 * amount);
+        self.add_direct_some_u8s_from_vec(u8s, start_index, amount);
+    }
+
+    /**
+     * Add the length of the u8 slice and the values of all u8s in the slice to
+     * this BitOutput.
+     * 
+     * The mirror function of this function is read_u8_vec. There is no read_u8_array
+     * or read_u8_slice because array sizes in Rust must be known at compile time.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_u8_slice(&mut self, u8s: &[u8]){
+        self.ensure_extra_capacity(32 + 8 * u8s.len());
+        self.add_direct_u8_slice(u8s);
+    }
+
+    /**
+     * Add the length of the u8 vector and the values of all u8s in the vector to
+     * this BitOutput.
+     * 
+     * The mirror function of this function is read_u8_vec.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_u8_vec(&mut self, u8s: &Vec<u8>){
+        self.ensure_extra_capacity(32 + 8 * u8s.len());
+        self.add_direct_u8_vec(u8s);
+    }
+
+    /**
+     * Add all u16s in the slice to this BitOutput without checking if there is enough capacity left in this
+     * BitOutput. This is just a shortcut for adding all u16s one by one. The amount of u16s is NOT stored, 
+     * so make sure your application knows how many u16s were stored. You should always use
+     * ensure_extra_capacity before calling this function.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_direct_u16_slice instead.
+     */
+    fn add_direct_u16s_from_slice(&mut self, u16s: &[u16]){
+        for value in u16s {
+            self.add_direct_u16(*value);
+        }
+    }
+
+    /**
+     * Add all u16s in the vector to this BitOutput without checking if there is enough capacity left in this
+     * BitOutput. This is just a shortcut for adding all u16s one by one. The amount of u16s is NOT stored, 
+     * so make sure your application knows how many u16s were stored. You should always use
+     * ensure_extra_capacity before calling this function.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_direct_u16_vec instead.
+     */
+    fn add_direct_u16s_from_vec(&mut self, u16s: &Vec<u16>){
+        for value in u16s {
+            self.add_direct_u16(*value);
+        }
+    }
+
+    /**
+     * Add the u16s in the range [start_index, start_index + amount> from u16s to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all u16s in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u16s were stored. Also make sure to use ensure_extra_capacity before calling this
+     * function.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     */
+    fn add_direct_some_u16s_from_slice(&mut self, u16s: &[u16], start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_u16(u16s[index]);
+        }
+    }
+
+    /**
+     * Add the u16s in the range [start_index, start_index + amount> from u16s to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all u16s in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u16s were stored. Also make sure to use ensure_extra_capacity before calling this
+     * function.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     */
+    fn add_direct_some_u16s_from_vec(&mut self, u16s: &Vec<u16>, start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_u16(u16s[index]);
+        }
+    }
+
+    /**
+     * Add the length of the u16 slice and the values of all u16s in the slice without
+     * checking the capacity of this BitOutput. Always call ensure_extra_capacity before
+     * using this function.
+     * 
+     * The mirror function of this function is read_u16_vec. There is no read_u16_array
+     * or read_u16_slice because array sizes in Rust must be known at compile time.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_u16_slice(&mut self, u16s: &[u16]){
+        self.add_direct_u32(u16s.len() as u32);
+        self.add_direct_u16s_from_slice(u16s);
+    }
+
+    /**
+     * Add the length of the u16 vector and the values of all u16s in the vector without
+     * checking the capacity of this BitOutput. You should use ensure_extra_capacity before
+     * calling this function.
+     * 
+     * The mirror function of this function is read_u16_vec.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_u16_vec(&mut self, u16s: &Vec<u16>){
+        self.add_direct_u32(u16s.len() as u32);
+        self.add_direct_u16s_from_vec(u16s);
+    }
+
+    /**
+     * Add all u16s in the slice to this BitOutput. This faster than adding all u16s one by 
+     * one because the capacity only needs to be checked once. The amount of u16s is NOT stored, 
+     * so make sure your application knows how many u16s were stored.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_u16_slice instead.
+     */
+    fn add_u16s_from_slice(&mut self, u16s: &[u16]){
+        self.ensure_extra_capacity(16 * u16s.len());
+        self.add_direct_u16s_from_slice(u16s);
+    }
+
+    /**
+     * Add all u16s in the vector to this BitOutput. This is faster than adding all u16s one by one
+     * because the capacity only needs to be checked once. The amount of u16s is NOT stored, 
+     * so make sure your application knows how many u16s were stored.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_u16_vec instead.
+     */
+    fn add_u16s_from_vec(&mut self, u16s: &Vec<u16>){
+        self.ensure_extra_capacity(16 * u16s.len());
+        self.add_direct_u16s_from_vec(u16s);
+    }
+
+    /**
+     * Add the u16s in the range [start_index, start_index + amount> from u16s to this BitOutput. This is 
+     * faster than adding all u16s in that range one by one because the capacity only needs to be checked once. 
+     * The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u16s were stored.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     */
+    fn add_some_u16s_from_slice(&mut self, u16s: &[u16], start_index: usize, amount: usize){
+        self.ensure_extra_capacity(16 * amount);
+        self.add_direct_some_u16s_from_slice(u16s, start_index, amount);
+    }
+
+    /**
+     * Add the u16s in the range [start_index, start_index + amount> from u16s to this BitOutput. This is 
+     * faster than adding all u16s in that range one by one because the capacity only needs to be checked once. 
+     * The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u16s were stored.
+     * 
+     * The mirror functions of this funcion are read_u16s, read_u16s_to_slice and read_u16s_to_vec.
+     */
+    fn add_some_u16s_from_vec(&mut self, u16s: &Vec<u16>, start_index: usize, amount: usize){
+        self.ensure_extra_capacity(16 * amount);
+        self.add_direct_some_u16s_from_vec(u16s, start_index, amount);
+    }
+
+    /**
+     * Add the length of the u16 slice and the values of all u16s in the slice to
+     * this BitOutput.
+     * 
+     * The mirror function of this function is read_u16_vec. There is no read_u16_array
+     * or read_u16_slice because array sizes in Rust must be known at compile time.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_u16_slice(&mut self, u16s: &[u16]){
+        self.ensure_extra_capacity(32 + 16 * u16s.len());
+        self.add_direct_u16_slice(u16s);
+    }
+
+    /**
+     * Add the length of the u16 vector and the values of all u16s in the vector to
+     * this BitOutput.
+     * 
+     * The mirror function of this function is read_u16_vec.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_u16_vec(&mut self, u16s: &Vec<u16>){
+        self.ensure_extra_capacity(32 + 16 * u16s.len());
+        self.add_direct_u16_vec(u16s);
+    }
+
+    /**
+     * Add all u32s in the slice to this BitOutput without checking if there is enough capacity left in this
+     * BitOutput. This is just a shortcut for adding all u32s one by one. The amount of u32s is NOT stored, 
+     * so make sure your application knows how many u32s were stored. You should always use
+     * ensure_extra_capacity before calling this function.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_direct_u32_slice instead.
+     */
+    fn add_direct_u32s_from_slice(&mut self, u32s: &[u32]){
+        for value in u32s {
+            self.add_direct_u32(*value);
+        }
+    }
+
+    /**
+     * Add all u32s in the vector to this BitOutput without checking if there is enough capacity left in this
+     * BitOutput. This is just a shortcut for adding all u32s one by one. The amount of u32s is NOT stored, 
+     * so make sure your application knows how many u32s were stored. You should always use
+     * ensure_extra_capacity before calling this function.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_direct_u32_vec instead.
+     */
+    fn add_direct_u32s_from_vec(&mut self, u32s: &Vec<u32>){
+        for value in u32s {
+            self.add_direct_u32(*value);
+        }
+    }
+
+    /**
+     * Add the u32s in the range [start_index, start_index + amount> from u32s to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all u32s in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u32s were stored. Also make sure to use ensure_extra_capacity before calling this
+     * function.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     */
+    fn add_direct_some_u32s_from_slice(&mut self, u32s: &[u32], start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_u32(u32s[index]);
+        }
+    }
+
+    /**
+     * Add the u32s in the range [start_index, start_index + amount> from u32s to this BitOutput without
+     * checking the capacity of this BitOutput. This is just a shortcut for adding all u32s in that range
+     * directly. The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u32s were stored. Also make sure to use ensure_extra_capacity before calling this
+     * function.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     */
+    fn add_direct_some_u32s_from_vec(&mut self, u32s: &Vec<u32>, start_index: usize, amount: usize){
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            self.add_direct_u32(u32s[index]);
+        }
+    }
+
+    /**
+     * Add the length of the u32 slice and the values of all u32s in the slice without
+     * checking the capacity of this BitOutput. Always call ensure_extra_capacity before
+     * using this function.
+     * 
+     * The mirror function of this function is read_u32_vec. There is no read_u32_array
+     * or read_u32_slice because array sizes in Rust must be known at compile time.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_u32_slice(&mut self, u32s: &[u32]){
+        self.add_direct_u32(u32s.len() as u32);
+        self.add_direct_u32s_from_slice(u32s);
+    }
+
+    /**
+     * Add the length of the u32 vector and the values of all u32s in the vector without
+     * checking the capacity of this BitOutput. You should use ensure_extra_capacity before
+     * calling this function.
+     * 
+     * The mirror function of this function is read_u32_vec.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_direct_u32_vec(&mut self, u32s: &Vec<u32>){
+        self.add_direct_u32(u32s.len() as u32);
+        self.add_direct_u32s_from_vec(u32s);
+    }
+
+    /**
+     * Add all u32s in the slice to this BitOutput. This faster than adding all u32s one by 
+     * one because the capacity only needs to be checked once. The amount of u32s is NOT stored, 
+     * so make sure your application knows how many u32s were stored.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_u32_slice instead.
+     */
+    fn add_u32s_from_slice(&mut self, u32s: &[u32]){
+        self.ensure_extra_capacity(32 * u32s.len());
+        self.add_direct_u32s_from_slice(u32s);
+    }
+
+    /**
+     * Add all u32s in the vector to this BitOutput. This is faster than adding all u32s one by one
+     * because the capacity only needs to be checked once. The amount of u32s is NOT stored, 
+     * so make sure your application knows how many u32s were stored.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     * 
+     * If you want to store the length of the vector as well, use add_u32_vec instead.
+     */
+    fn add_u32s_from_vec(&mut self, u32s: &Vec<u32>){
+        self.ensure_extra_capacity(32 * u32s.len());
+        self.add_direct_u32s_from_vec(u32s);
+    }
+
+    /**
+     * Add the u32s in the range [start_index, start_index + amount> from u32s to this BitOutput. This is 
+     * faster than adding all u32s in that range one by one because the capacity only needs to be checked once. 
+     * The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u32s were stored.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     */
+    fn add_some_u32s_from_slice(&mut self, u32s: &[u32], start_index: usize, amount: usize){
+        self.ensure_extra_capacity(32 * amount);
+        self.add_direct_some_u32s_from_slice(u32s, start_index, amount);
+    }
+
+    /**
+     * Add the u32s in the range [start_index, start_index + amount> from u32s to this BitOutput. This is 
+     * faster than adding all u32s in that range one by one because the capacity only needs to be checked once. 
+     * The amount and start_index are NOT stored in this BitOutput, so make sure your application
+     * knows how many u32s were stored.
+     * 
+     * The mirror functions of this funcion are read_u32s, read_u32s_to_slice and read_u32s_to_vec.
+     */
+    fn add_some_u32s_from_vec(&mut self, u32s: &Vec<u32>, start_index: usize, amount: usize){
+        self.ensure_extra_capacity(32 * amount);
+        self.add_direct_some_u32s_from_vec(u32s, start_index, amount);
+    }
+
+    /**
+     * Add the length of the u32 slice and the values of all u32s in the slice to
+     * this BitOutput.
+     * 
+     * The mirror function of this function is read_u32_vec. There is no read_u32_array
+     * or read_u32_slice because array sizes in Rust must be known at compile time.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_u32_slice(&mut self, u32s: &[u32]){
+        self.ensure_extra_capacity(32 + 32 * u32s.len());
+        self.add_direct_u32_slice(u32s);
+    }
+
+    /**
+     * Add the length of the u32 vector and the values of all u32s in the vector to
+     * this BitOutput.
+     * 
+     * The mirror function of this function is read_u32_vec.
+     * 
+     * The length will be stored as u32 to make sure the stored data can also be read by 
+     * java or javascript applications that use the BitHelper variant for their language.
+     */
+    fn add_u32_vec(&mut self, u32s: &Vec<u32>){
+        self.ensure_extra_capacity(32 + 32 * u32s.len());
+        self.add_direct_u32_vec(u32s);
     }
 
     /**

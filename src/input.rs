@@ -436,9 +436,6 @@ pub trait BitInput {
         vec
     }
 
-
-
-
     /**
      * Reads amount i32s from this BitInput and puts them in dest, without checking if there is enough capacity
      * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
@@ -561,6 +558,387 @@ pub trait BitInput {
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_i32());
+        }
+        vec
+    }
+
+
+
+
+    /**
+     * Reads amount u8s from this BitInput and puts them in dest, without checking if there is enough capacity
+     * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+     * to make sure there is enough data that can be read immediathly.
+     * 
+     * The first u8 read will be put in dest[start_index] and the last u8 read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
+     * add_some_u8s_from_slice and add_some_u8s_from_vec.
+     */
+    fn read_direct_u8s_to_slice(&mut self, dest: &mut [u8], start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_u8();
+        }
+    }
+
+    /**
+    * Reads amount u8s from this BitInput and puts them in dest, without checking if there is enough capacity
+    * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+    * to make sure there is enough data that can be read immediathly.
+    *
+    * The first u8 read will be put in dest[start_index] and the last u8 read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
+    * add_some_u8s_from_slice and add_some_u8s_from_vec.
+    */
+    fn read_direct_u8s_to_vec(&mut self, dest: &mut Vec<u8>, start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        if bound_index > dest.len() {
+            dest.resize(bound_index - dest.len(), 0);
+        }
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_u8();
+        }
+    }
+
+    /**
+    * Reads amount u8s from this BitInput without checking if this BitInput has enough capacity left. The
+    * read u8s will be put in a new u8 vector and that vector will be returned by this method.
+    *
+    * The first u8 read will be put at the first index of result and the last u8 read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
+    * add_some_u8s_from_slice and add_some_u8s_from_vec.
+    */
+    fn read_direct_u8s(&mut self, amount: usize) -> Vec<u8> {
+        let mut result = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            result.push(self.read_direct_u8());
+        }
+        result
+    }
+
+    /**
+     * Reads a u8 vector from this BitInput without checking if there is enough capacity left in this BitInput.
+     * The read u8 vector will be returned.
+     * 
+     * The mirror functions of this function are add_u8_vec and add_u8_slice.
+     */
+    fn read_direct_u8_vec(&mut self) -> Vec<u8> {
+        let amount = self.read_direct_u32();
+        self.read_direct_u8s(amount as usize)
+    }
+    
+    /**
+     * Reads amount u8s from this BitInput and puts them in dest.
+     * 
+     * The first u8 read will be put in dest[start_index] and the last u8 read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
+     * add_some_u8s_from_slice and add_some_u8s_from_vec.
+     */
+    fn read_u8s_to_slice(&mut self, dest: &mut [u8], start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount * 8);
+        self.read_direct_u8s_to_slice(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount u8s from this BitInput and puts them in dest.
+    *
+    * The first u8 read will be put in dest[start_index] and the last u8 read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
+    * add_some_u8s_from_slice and add_some_u8s_from_vec.
+    */
+    fn read_u8s_to_vec(&mut self, dest: &mut Vec<u8>, start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount * 8);
+        self.read_direct_u8s_to_vec(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount u8s from this BitInput. The read u8s will be put in a new u8 vector and that 
+    * vector will be returned by this method.
+    *
+    * The first u8 read will be put at the first index of result and the last u8 read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
+    * add_some_u8s_from_slice and add_some_u8s_from_vec.
+    */
+    fn read_u8s(&mut self, amount: usize) -> Vec<u8> {
+        self.ensure_extra_capacity(amount * 8);
+        self.read_direct_u8s(amount)
+    }
+
+    /**
+     * Reads a u8 vector from this BitInput. The read u8 vector will be returned.
+     * 
+     * The mirror functions of this function are add_u8_vec and add_u8_slice.
+     */
+    fn read_u8_vec(&mut self) -> Vec<u8> {
+        let amount = self.read_u32() as usize;
+        self.ensure_extra_capacity(amount * 8);
+        let mut vec = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            vec.push(self.read_direct_u8());
+        }
+        vec
+    }
+
+    /**
+     * Reads amount u16s from this BitInput and puts them in dest, without checking if there is enough capacity
+     * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+     * to make sure there is enough data that can be read immediathly.
+     * 
+     * The first u16 read will be put in dest[start_index] and the last u16 read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
+     * add_some_u16s_from_slice and add_some_u16s_from_vec.
+     */
+    fn read_direct_u16s_to_slice(&mut self, dest: &mut [u16], start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_u16();
+        }
+    }
+
+    /**
+    * Reads amount u16s from this BitInput and puts them in dest, without checking if there is enough capacity
+    * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+    * to make sure there is enough data that can be read immediathly.
+    *
+    * The first u16 read will be put in dest[start_index] and the last u16 read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
+    * add_some_u16s_from_slice and add_some_u16s_from_vec.
+    */
+    fn read_direct_u16s_to_vec(&mut self, dest: &mut Vec<u16>, start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        if bound_index > dest.len() {
+            dest.resize(bound_index - dest.len(), 0);
+        }
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_u16();
+        }
+    }
+
+    /**
+    * Reads amount u16s from this BitInput without checking if this BitInput has enough capacity left. The
+    * read u16s will be put in a new u16 vector and that vector will be returned by this method.
+    *
+    * The first u16 read will be put at the first index of result and the last u16 read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
+    * add_some_u16s_from_slice and add_some_u16s_from_vec.
+    */
+    fn read_direct_u16s(&mut self, amount: usize) -> Vec<u16> {
+        let mut result = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            result.push(self.read_direct_u16());
+        }
+        result
+    }
+
+    /**
+     * Reads a u16 vector from this BitInput without checking if there is enough capacity left in this BitInput.
+     * The read u16 vector will be returned.
+     * 
+     * The mirror functions of this function are add_u16_vec and add_u16_slice.
+     */
+    fn read_direct_u16_vec(&mut self) -> Vec<u16> {
+        let amount = self.read_direct_u32();
+        self.read_direct_u16s(amount as usize)
+    }
+    
+    /**
+     * Reads amount u16s from this BitInput and puts them in dest.
+     * 
+     * The first u16 read will be put in dest[start_index] and the last u16 read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
+     * add_some_u16s_from_slice and add_some_u16s_from_vec.
+     */
+    fn read_u16s_to_slice(&mut self, dest: &mut [u16], start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount * 16);
+        self.read_direct_u16s_to_slice(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount u16s from this BitInput and puts them in dest.
+    *
+    * The first u16 read will be put in dest[start_index] and the last u16 read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
+    * add_some_u16s_from_slice and add_some_u16s_from_vec.
+    */
+    fn read_u16s_to_vec(&mut self, dest: &mut Vec<u16>, start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount * 16);
+        self.read_direct_u16s_to_vec(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount u16s from this BitInput. The read u16s will be put in a new u16 vector and that 
+    * vector will be returned by this method.
+    *
+    * The first u16 read will be put at the first index of result and the last u16 read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
+    * add_some_u16s_from_slice and add_some_u16s_from_vec.
+    */
+    fn read_u16s(&mut self, amount: usize) -> Vec<u16> {
+        self.ensure_extra_capacity(amount * 16);
+        self.read_direct_u16s(amount)
+    }
+
+    /**
+     * Reads a u16 vector from this BitInput. The read u16 vector will be returned.
+     * 
+     * The mirror functions of this function are add_u16_vec and add_u16_slice.
+     */
+    fn read_u16_vec(&mut self) -> Vec<u16> {
+        let amount = self.read_u32() as usize;
+        self.ensure_extra_capacity(amount * 16);
+        let mut vec = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            vec.push(self.read_direct_u16());
+        }
+        vec
+    }
+
+    /**
+     * Reads amount u32s from this BitInput and puts them in dest, without checking if there is enough capacity
+     * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+     * to make sure there is enough data that can be read immediathly.
+     * 
+     * The first u32 read will be put in dest[start_index] and the last u32 read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
+     * add_some_u32s_from_slice and add_some_u32s_from_vec.
+     */
+    fn read_direct_u32s_to_slice(&mut self, dest: &mut [u32], start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_u32();
+        }
+    }
+
+    /**
+    * Reads amount u32s from this BitInput and puts them in dest, without checking if there is enough capacity
+    * left in this BitInput. This method should only be used after a call to ensure_extra_capacity has been used
+    * to make sure there is enough data that can be read immediathly.
+    *
+    * The first u32 read will be put in dest[start_index] and the last u32 read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
+    * add_some_u32s_from_slice and add_some_u32s_from_vec.
+    */
+    fn read_direct_u32s_to_vec(&mut self, dest: &mut Vec<u32>, start_index: usize, amount: usize) {
+        let bound_index = start_index + amount;
+        if bound_index > dest.len() {
+            dest.resize(bound_index - dest.len(), 0);
+        }
+        for index in start_index..bound_index {
+            dest[index] = self.read_direct_u32();
+        }
+    }
+
+    /**
+    * Reads amount u32s from this BitInput without checking if this BitInput has enough capacity left. The
+    * read u32s will be put in a new u32 vector and that vector will be returned by this method.
+    *
+    * The first u32 read will be put at the first index of result and the last u32 read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
+    * add_some_u32s_from_slice and add_some_u32s_from_vec.
+    */
+    fn read_direct_u32s(&mut self, amount: usize) -> Vec<u32> {
+        let mut result = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            result.push(self.read_direct_u32());
+        }
+        result
+    }
+
+    /**
+     * Reads a u32 vector from this BitInput without checking if there is enough capacity left in this BitInput.
+     * The read u32 vector will be returned.
+     * 
+     * The mirror functions of this function are add_u32_vec and add_u32_slice.
+     */
+    fn read_direct_u32_vec(&mut self) -> Vec<u32> {
+        let amount = self.read_direct_u32();
+        self.read_direct_u32s(amount as usize)
+    }
+    
+    /**
+     * Reads amount u32s from this BitInput and puts them in dest.
+     * 
+     * The first u32 read will be put in dest[start_index] and the last u32 read will be put in
+     * dest[start_index + amount - 1].
+     * 
+     * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
+     * add_some_u32s_from_slice and add_some_u32s_from_vec.
+     */
+    fn read_u32s_to_slice(&mut self, dest: &mut [u32], start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount * 32);
+        self.read_direct_u32s_to_slice(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount u32s from this BitInput and puts them in dest.
+    *
+    * The first u32 read will be put in dest[start_index] and the last u32 read will be put in
+    * dest[start_index + amount - 1].
+    * 
+    * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
+    * add_some_u32s_from_slice and add_some_u32s_from_vec.
+    */
+    fn read_u32s_to_vec(&mut self, dest: &mut Vec<u32>, start_index: usize, amount: usize) {
+        self.ensure_extra_capacity(amount * 32);
+        self.read_direct_u32s_to_vec(dest, start_index, amount);
+    }
+
+    /**
+    * Reads amount u32s from this BitInput. The read u32s will be put in a new u32 vector and that 
+    * vector will be returned by this method.
+    *
+    * The first u32 read will be put at the first index of result and the last u32 read will be put in
+    * the last index of result.
+    * 
+    * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
+    * add_some_u32s_from_slice and add_some_u32s_from_vec.
+    */
+    fn read_u32s(&mut self, amount: usize) -> Vec<u32> {
+        self.ensure_extra_capacity(amount * 32);
+        self.read_direct_u32s(amount)
+    }
+
+    /**
+     * Reads a u32 vector from this BitInput. The read u32 vector will be returned.
+     * 
+     * The mirror functions of this function are add_u32_vec and add_u32_slice.
+     */
+    fn read_u32_vec(&mut self) -> Vec<u32> {
+        let amount = self.read_u32() as usize;
+        self.ensure_extra_capacity(amount * 32);
+        let mut vec = Vec::with_capacity(amount);
+        for _ in 0..amount {
+            vec.push(self.read_direct_u32());
         }
         vec
     }
