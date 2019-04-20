@@ -370,101 +370,109 @@ mod tests {
     }
 
     fn check_stuff_in_bit_input(input: &mut BitInput){
-        assert_eq!(input.read_bools(5), vec![false, true, true, false, true]);
-        assert_eq!(input.read_i8(), -125);
-        assert_eq!(input.read_u8(), 234);
-        assert_eq!(input.read_i16(), -21345);
-        assert_eq!(input.read_u16(), 25565);
-        assert_eq!(input.read_i32(), 2123456789);
+        assert_eq!(input.read_bools(5).unwrap(), vec![false, true, true, false, true]);
+        assert_eq!(input.read_i8().unwrap(), -125);
+        assert_eq!(input.read_u8().unwrap(), 234);
+        assert_eq!(input.read_i16().unwrap(), -21345);
+        assert_eq!(input.read_u16().unwrap(), 25565);
+        assert_eq!(input.read_i32().unwrap(), 2123456789);
 
-        assert_eq!(input.read_bool_vec(), vec![false, false, true, false, true, true]);
-        assert_eq!(input.read_bool_vec(), vec![true, true, false, false]);
-        assert_eq!(input.read_bools(5), vec![true, false, true, false, true]);
-        assert_eq!(input.read_bools(6), vec![false, false, false, true, false, true]);
+        assert_eq!(input.read_bool_vec().unwrap(), vec![false, false, true, false, true, true]);
+        assert_eq!(input.read_bool_vec().unwrap(), vec![true, true, false, false]);
+        assert_eq!(input.read_bools(5).unwrap(), vec![true, false, true, false, true]);
+        assert_eq!(input.read_bools(6).unwrap(), vec![false, false, false, true, false, true]);
         let mut test_bool_vec = vec![false; 3];
-        input.read_bools_to_vec(&mut test_bool_vec, 0, 3);
+        input.read_bools_to_vec(&mut test_bool_vec, 0, 3).unwrap();
         assert_eq!(test_bool_vec, vec![true, false, true]);
         let mut test_bool_slice = [true; 2];
-        input.read_bools_to_slice(&mut test_bool_slice, 0, 2);
+        input.read_bools_to_slice(&mut test_bool_slice, 0, 2).unwrap();
         assert_eq!(test_bool_slice, [false, false]);
 
         assert_eq!(input.read_string(7), Ok(Some(String::from("𝄞music"))));
         assert_eq!(input.read_string(0), Ok(None));
 
-        assert_eq!(input.read_i8_vec(), vec![-42, 11, 127, 100, 0, -21]);
-        assert_eq!(input.read_i8_vec(), vec![36, -128, -45, 96]);
-        assert_eq!(input.read_i8s(5), vec![111, -111, 35, 97, -69]);
-        assert_eq!(input.read_i8s(6), vec![-1, -2, 1, 2, 72, 53]);
+        assert_eq!(input.read_i8_vec().unwrap(), vec![-42, 11, 127, 100, 0, -21]);
+        assert_eq!(input.read_i8_vec().unwrap(), vec![36, -128, -45, 96]);
+        assert_eq!(input.read_i8s(5).unwrap(), vec![111, -111, 35, 97, -69]);
+        assert_eq!(input.read_i8s(6).unwrap(), vec![-1, -2, 1, 2, 72, 53]);
         let mut test_i8_vec = vec![-4; 3];
-        input.read_i8s_to_vec(&mut test_i8_vec, 0, 3);
+        input.read_i8s_to_vec(&mut test_i8_vec, 0, 3).unwrap();
         assert_eq!(test_i8_vec, vec![88, 19, 58]);
         let mut test_i8_slice = [-6; 2];
-        input.read_i8s_to_slice(&mut test_i8_slice, 0, 2);
+        input.read_i8s_to_slice(&mut test_i8_slice, 0, 2).unwrap();
         assert_eq!(test_i8_slice, [83, 73]);
 
-        assert_eq!(input.read_i16_vec(), vec![3483, -3498, 31834, -32745, 31834, 9834, -3456]);
-        assert_eq!(input.read_i16_vec(), vec![8374, -32756, 31234, -845, 0, 2324]);
-        assert_eq!(input.read_i16s(5), vec![3487, 8252, -9424, -12345, 8745]);
-        assert_eq!(input.read_i16s(5), vec![23742, -4573, 12, 8457, -31245]);
+        assert_eq!(input.read_i16_vec().unwrap(), vec![3483, -3498, 31834, -32745, 31834, 9834, -3456]);
+        assert_eq!(input.read_i16_vec().unwrap(), vec![8374, -32756, 31234, -845, 0, 2324]);
+        assert_eq!(input.read_i16s(5).unwrap(), vec![3487, 8252, -9424, -12345, 8745]);
+        assert_eq!(input.read_i16s(5).unwrap(), vec![23742, -4573, 12, 8457, -31245]);
         let mut test_i16_vec = vec![1; 10];
-        input.read_i16s_to_vec(&mut test_i16_vec, 2, 3);
+        input.read_i16s_to_vec(&mut test_i16_vec, 2, 3).unwrap();
         assert_eq!(test_i16_vec, vec![1, 1, -31587, 2374, 742, 1, 1, 1, 1, 1]);
         let mut test_i16_array = [1; 5];
-        input.read_i16s_to_slice(&mut test_i16_array, 1, 2);
+        input.read_i16s_to_slice(&mut test_i16_array, 1, 2).unwrap();
         assert_eq!(test_i16_array, [1, -4567, 7651, 1, 1]);
 
-        assert_eq!(input.read_i32_vec(), vec![9453948, 837247, -2378347, 18342, -347]);
-        assert_eq!(input.read_i32_vec(), vec![-4739, 347129, 179348, -8457834]);
-        assert_eq!(input.read_i32s(5), vec![7467, -34974857, 237834834, -6823, 101]);
-        assert_eq!(input.read_i32s(4), vec![64354, -735192, 9472, 43472823]);
+        assert_eq!(input.read_i32_vec().unwrap(), vec![9453948, 837247, -2378347, 18342, -347]);
+        assert_eq!(input.read_i32_vec().unwrap(), vec![-4739, 347129, 179348, -8457834]);
+        assert_eq!(input.read_i32s(5).unwrap(), vec![7467, -34974857, 237834834, -6823, 101]);
+        assert_eq!(input.read_i32s(4).unwrap(), vec![64354, -735192, 9472, 43472823]);
         let mut test_i32_vec = vec![1; 8];
-        input.read_i32s_to_vec(&mut test_i32_vec, 1, 4);
+        input.read_i32s_to_vec(&mut test_i32_vec, 1, 4).unwrap();
         assert_eq!(test_i32_vec, vec![1, -274583634, 86374573, 9234671, 5132343, 1, 1, 1]);
         let mut test_i32_array = [2; 8];
-        input.read_i32s_to_slice(&mut test_i32_array, 3, 2);
+        input.read_i32s_to_slice(&mut test_i32_array, 3, 2).unwrap();
         assert_eq!(test_i32_array, [2, 2, 2, 85736372, -1763487, 2, 2, 2]);
 
-        assert_eq!(input.read_sized_i64(5), -15);
-        assert_eq!(input.read_sized_i64(34), 5000000000);
-        assert_eq!(input.read_sized_i64(64), i64::min_value());
-        assert_eq!(input.read_sized_i64(64), i64::max_value());
+        assert_eq!(input.read_sized_i64(5).unwrap(), -15);
+        assert_eq!(input.read_sized_i64(34).unwrap(), 5000000000);
+        assert_eq!(input.read_sized_i64(64).unwrap(), i64::min_value());
+        assert_eq!(input.read_sized_i64(64).unwrap(), i64::max_value());
 
-        assert_eq!(input.read_sized_u64(7), 127);
-        assert_eq!(input.read_sized_u64(0), 0);
-        assert_eq!(input.read_sized_u64(64), u64::max_value());
+        assert_eq!(input.read_sized_u64(7).unwrap(), 127);
+        assert_eq!(input.read_sized_u64(0).unwrap(), 0);
+        assert_eq!(input.read_sized_u64(64).unwrap(), u64::max_value());
 
-        assert_eq!(input.read_u8_vec(), vec![42, 11, 127, 100, 0, 21]);
-        assert_eq!(input.read_u8_vec(), vec![36, 128, 45, 96]);
-        assert_eq!(input.read_u8s(5), vec![111, 111, 35, 97, 69]);
-        assert_eq!(input.read_u8s(6), vec![1, 2, 1, 2, 72, 53]);
+        assert_eq!(input.read_u8_vec().unwrap(), vec![42, 11, 127, 100, 0, 21]);
+        assert_eq!(input.read_u8_vec().unwrap(), vec![36, 128, 45, 96]);
+        assert_eq!(input.read_u8s(5).unwrap(), vec![111, 111, 35, 97, 69]);
+        assert_eq!(input.read_u8s(6).unwrap(), vec![1, 2, 1, 2, 72, 53]);
         let mut test_u8_vec = vec![4; 3];
-        input.read_u8s_to_vec(&mut test_u8_vec, 0, 3);
+        input.read_u8s_to_vec(&mut test_u8_vec, 0, 3).unwrap();
         assert_eq!(test_u8_vec, vec![88, 19, 58]);
         let mut test_u8_slice = [6; 2];
-        input.read_u8s_to_slice(&mut test_u8_slice, 0, 2);
+        input.read_u8s_to_slice(&mut test_u8_slice, 0, 2).unwrap();
         assert_eq!(test_u8_slice, [83, 73]);
 
-        assert_eq!(input.read_u16_vec(), vec![3483, 3498, 31834, 32745, 31834, 9834, 3456]);
-        assert_eq!(input.read_u16_vec(), vec![8374, 32756, 31234, 845, 0, 2324]);
-        assert_eq!(input.read_u16s(5), vec![3487, 8252, 9424, 12345, 8745]);
-        assert_eq!(input.read_u16s(5), vec![23742, 4573, 12, 8457, 31245]);
+        assert_eq!(input.read_u16_vec().unwrap(), vec![3483, 3498, 31834, 32745, 31834, 9834, 3456]);
+        assert_eq!(input.read_u16_vec().unwrap(), vec![8374, 32756, 31234, 845, 0, 2324]);
+        assert_eq!(input.read_u16s(5).unwrap(), vec![3487, 8252, 9424, 12345, 8745]);
+        assert_eq!(input.read_u16s(5).unwrap(), vec![23742, 4573, 12, 8457, 31245]);
         let mut test_u16_vec = vec![1; 10];
-        input.read_u16s_to_vec(&mut test_u16_vec, 2, 3);
+        input.read_u16s_to_vec(&mut test_u16_vec, 2, 3).unwrap();
         assert_eq!(test_u16_vec, vec![1, 1, 31587, 2374, 742, 1, 1, 1, 1, 1]);
         let mut test_u16_array = [1; 5];
-        input.read_u16s_to_slice(&mut test_u16_array, 1, 2);
+        input.read_u16s_to_slice(&mut test_u16_array, 1, 2).unwrap();
         assert_eq!(test_u16_array, [1, 4567, 7651, 1, 1]);
 
-        assert_eq!(input.read_u32_vec(), vec![9453948, 837247, 2378347, 18342, 347]);
-        assert_eq!(input.read_u32_vec(), vec![4739, 347129, 179348, 8457834]);
-        assert_eq!(input.read_u32s(5), vec![7467, 34974857, 237834834, 6823, 101]);
-        assert_eq!(input.read_u32s(4), vec![64354, 735192, 9472, 43472823]);
+        assert_eq!(input.read_u32_vec().unwrap(), vec![9453948, 837247, 2378347, 18342, 347]);
+        assert_eq!(input.read_u32_vec().unwrap(), vec![4739, 347129, 179348, 8457834]);
+        assert_eq!(input.read_u32s(5).unwrap(), vec![7467, 34974857, 237834834, 6823, 101]);
+        assert_eq!(input.read_u32s(4).unwrap(), vec![64354, 735192, 9472, 43472823]);
         let mut test_u32_vec = vec![1; 8];
-        input.read_u32s_to_vec(&mut test_u32_vec, 1, 4);
+        input.read_u32s_to_vec(&mut test_u32_vec, 1, 4).unwrap();
         assert_eq!(test_u32_vec, vec![1, 274583634, 86374573, 9234671, 5132343, 1, 1, 1]);
         let mut test_u32_array = [2; 8];
-        input.read_u32s_to_slice(&mut test_u32_array, 3, 2);
+        input.read_u32s_to_slice(&mut test_u32_array, 3, 2).unwrap();
         assert_eq!(test_u32_array, [2, 2, 2, 85736372, 1763487, 2, 2, 2]);
+
+        let maybe_capacity_error = input.read_i16_vec();
+        let capacity_error = maybe_capacity_error.unwrap_err();
+        match capacity_error {
+            BitInputError::StringLength(_) => panic!("Should have been capacity error"),
+            BitInputError::InputCapacity(c) => assert_eq!(c.requested_extra_capacity(), 32),
+            BitInputError::InvalidString(_) => panic!("Should have been capacity error")
+        };
     }
 
     #[test]

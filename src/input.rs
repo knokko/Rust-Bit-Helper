@@ -14,6 +14,13 @@ use crate::converter::*;
  * To load the data that was stored in the BitOutput, you should call the functions of the BitInput instance
  * with the exact same order as their mirror functions were called in the BitOutput instance.
  * 
+ * All non-direct methods of BitInput return a Result that could contain a BitInputError as error. These will be
+ * returned if an attempt is made to load more data than there was stored or eventual other method-specific cases
+ * where the read input is not valid. These errors will only be returned if the input data is invalid or if the
+ * code that uses this bit input is not programmed correctly. If you trust your input, you can simply unwrap all
+ * results. But this can be dangerous if you are for instance reading data from clients via sockets, you should
+ * not just unwrap them because the clients could be malicious.
+ * 
  * This trait also has 'direct' read functions. Those direct functions do the same as their non-direct counterpart,
  * but they don't check if there is enough capacity left to read. Using the direct functions is a little faster,
  * but you should use the ensure_extra_capacity function manually to make sure there is enough data to read. The
@@ -45,12 +52,13 @@ pub trait BitInput {
      * Ensure that at least extra_bools more booleans can be read from this BitInput. In order to make sure you can
      * safely call read_direct_i32, you need to use ensure_extra_capacity(32). 
      * 
-     * This method will panic if there is no more data to read.
+     * This method will return Ok if there is enough input data to be read. If there is not enough input data available
+     * and thus the capacity can't be increased, this method will return an InputCapacityError.
      * 
      * You only need to use this method if you would like to use direct read functions. The non-direct (normal)
      * read functions will always call this method before reading data.
      */
-    fn ensure_extra_capacity(&mut self, extra_bools: usize);
+    fn ensure_extra_capacity(&mut self, extra_bools: usize) -> Result<(),InputCapacityError>;
 
     /**
      * Mark this BitInput as terminated. Structs implementing this trait should discard their data when this method
@@ -135,9 +143,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
      * add_some_bools_from_slice and add_some_bools_from_vec.
      */
-    fn read_bools_to_slice(&mut self, dest: &mut [bool], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount);
+    fn read_bools_to_slice(&mut self, dest: &mut [bool], start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount)?;
         self.read_direct_bools_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -149,9 +158,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
     * add_some_bools_from_slice and add_some_bools_from_vec.
     */
-    fn read_bools_to_vec(&mut self, dest: &mut Vec<bool>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount);
+    fn read_bools_to_vec(&mut self, dest: &mut Vec<bool>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount)?;
         self.read_direct_bools_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -164,9 +174,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_bools_from_slice, add_bools_from_vec,
     * add_some_bools_from_slice and add_some_bools_from_vec.
     */
-    fn read_bools(&mut self, amount: usize) -> Vec<bool> {
-        self.ensure_extra_capacity(amount);
-        self.read_direct_bools(amount)
+    fn read_bools(&mut self, amount: usize) -> Result<Vec<bool>,BitInputError> {
+        self.ensure_extra_capacity(amount)?;
+        Ok(self.read_direct_bools(amount))
     }
 
     /**
@@ -174,14 +184,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_bool_vec and add_bool_slice.
      */
-    fn read_bool_vec(&mut self) -> Vec<bool> {
-        let amount = self.read_i32() as usize;
-        self.ensure_extra_capacity(amount);
+    fn read_bool_vec(&mut self) -> Result<Vec<bool>,BitInputError> {
+        let amount = self.read_i32()? as usize;
+        self.ensure_extra_capacity(amount)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_bool());
         }
-        vec
+        Ok(vec)
     }
 
     /**
@@ -261,9 +271,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_i8s_from_slice, add_i8s_from_vec,
      * add_some_i8s_from_slice and add_some_i8s_from_vec.
      */
-    fn read_i8s_to_slice(&mut self, dest: &mut [i8], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 8);
+    fn read_i8s_to_slice(&mut self, dest: &mut [i8], start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 8)?;
         self.read_direct_i8s_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -275,9 +286,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_i8s_from_slice, add_i8s_from_vec,
     * add_some_i8s_from_slice and add_some_i8s_from_vec.
     */
-    fn read_i8s_to_vec(&mut self, dest: &mut Vec<i8>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 8);
+    fn read_i8s_to_vec(&mut self, dest: &mut Vec<i8>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 8)?;
         self.read_direct_i8s_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -290,9 +302,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_i8s_from_slice, add_i8s_from_vec,
     * add_some_i8s_from_slice and add_some_i8s_from_vec.
     */
-    fn read_i8s(&mut self, amount: usize) -> Vec<i8> {
-        self.ensure_extra_capacity(amount * 8);
-        self.read_direct_i8s(amount)
+    fn read_i8s(&mut self, amount: usize) -> Result<Vec<i8>,BitInputError> {
+        self.ensure_extra_capacity(amount * 8)?;
+        Ok(self.read_direct_i8s(amount))
     }
 
     /**
@@ -300,14 +312,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_i8_vec and add_i8_slice.
      */
-    fn read_i8_vec(&mut self) -> Vec<i8> {
-        let amount = self.read_i32() as usize;
-        self.ensure_extra_capacity(amount * 8);
+    fn read_i8_vec(&mut self) -> Result<Vec<i8>,BitInputError> {
+        let amount = self.read_i32()? as usize;
+        self.ensure_extra_capacity(amount * 8)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_i8());
         }
-        vec
+        Ok(vec)
     }
 
     /**
@@ -387,9 +399,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_i16s_from_slice, add_i16s_from_vec,
      * add_some_i16s_from_slice and add_some_i16s_from_vec.
      */
-    fn read_i16s_to_slice(&mut self, dest: &mut [i16], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 16);
+    fn read_i16s_to_slice(&mut self, dest: &mut [i16], start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 16)?;
         self.read_direct_i16s_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -401,9 +414,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_i16s_from_slice, add_i16s_from_vec,
     * add_some_i16s_from_slice and add_some_i16s_from_vec.
     */
-    fn read_i16s_to_vec(&mut self, dest: &mut Vec<i16>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 16);
+    fn read_i16s_to_vec(&mut self, dest: &mut Vec<i16>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 16)?;
         self.read_direct_i16s_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -416,9 +430,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_i16s_from_slice, add_i16s_from_vec,
     * add_some_i16s_from_slice and add_some_i16s_from_vec.
     */
-    fn read_i16s(&mut self, amount: usize) -> Vec<i16> {
-        self.ensure_extra_capacity(amount * 16);
-        self.read_direct_i16s(amount)
+    fn read_i16s(&mut self, amount: usize) -> Result<Vec<i16>,BitInputError> {
+        self.ensure_extra_capacity(amount * 16)?;
+        Ok(self.read_direct_i16s(amount))
     }
 
     /**
@@ -426,14 +440,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_i16_vec and add_i16_slice.
      */
-    fn read_i16_vec(&mut self) -> Vec<i16> {
-        let amount = self.read_i32() as usize;
-        self.ensure_extra_capacity(amount * 16);
+    fn read_i16_vec(&mut self) -> Result<Vec<i16>,BitInputError> {
+        let amount = self.read_i32()? as usize;
+        self.ensure_extra_capacity(amount * 16)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_i16());
         }
-        vec
+        Ok(vec)
     }
 
     /**
@@ -513,9 +527,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_i32s_from_slice, add_i32s_from_vec,
      * add_some_i32s_from_slice and add_some_i32s_from_vec.
      */
-    fn read_i32s_to_slice(&mut self, dest: &mut [i32], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 32);
+    fn read_i32s_to_slice(&mut self, dest: &mut [i32], start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 32)?;
         self.read_direct_i32s_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -527,9 +542,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_i32s_from_slice, add_i32s_from_vec,
     * add_some_i32s_from_slice and add_some_i32s_from_vec.
     */
-    fn read_i32s_to_vec(&mut self, dest: &mut Vec<i32>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 32);
+    fn read_i32s_to_vec(&mut self, dest: &mut Vec<i32>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 32)?;
         self.read_direct_i32s_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -542,9 +558,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_i32s_from_slice, add_i32s_from_vec,
     * add_some_i32s_from_slice and add_some_i32s_from_vec.
     */
-    fn read_i32s(&mut self, amount: usize) -> Vec<i32> {
-        self.ensure_extra_capacity(amount * 32);
-        self.read_direct_i32s(amount)
+    fn read_i32s(&mut self, amount: usize) -> Result<Vec<i32>,BitInputError> {
+        self.ensure_extra_capacity(amount * 32)?;
+        Ok(self.read_direct_i32s(amount))
     }
 
     /**
@@ -552,14 +568,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_i32_vec and add_i32_slice.
      */
-    fn read_i32_vec(&mut self) -> Vec<i32> {
-        let amount = self.read_i32() as usize;
-        self.ensure_extra_capacity(amount * 32);
+    fn read_i32_vec(&mut self) -> Result<Vec<i32>,BitInputError> {
+        let amount = self.read_i32()? as usize;
+        self.ensure_extra_capacity(amount * 32)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_i32());
         }
-        vec
+        Ok(vec)
     }
 
 
@@ -642,9 +658,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
      * add_some_u8s_from_slice and add_some_u8s_from_vec.
      */
-    fn read_u8s_to_slice(&mut self, dest: &mut [u8], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 8);
+    fn read_u8s_to_slice(&mut self, dest: &mut [u8], start_index: usize, amount: usize) -> Result<(),BitInputError>{
+        self.ensure_extra_capacity(amount * 8)?;
         self.read_direct_u8s_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -656,9 +673,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
     * add_some_u8s_from_slice and add_some_u8s_from_vec.
     */
-    fn read_u8s_to_vec(&mut self, dest: &mut Vec<u8>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 8);
+    fn read_u8s_to_vec(&mut self, dest: &mut Vec<u8>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 8)?;
         self.read_direct_u8s_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -671,9 +689,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_u8s_from_slice, add_u8s_from_vec,
     * add_some_u8s_from_slice and add_some_u8s_from_vec.
     */
-    fn read_u8s(&mut self, amount: usize) -> Vec<u8> {
-        self.ensure_extra_capacity(amount * 8);
-        self.read_direct_u8s(amount)
+    fn read_u8s(&mut self, amount: usize) -> Result<Vec<u8>,BitInputError> {
+        self.ensure_extra_capacity(amount * 8)?;
+        Ok(self.read_direct_u8s(amount))
     }
 
     /**
@@ -681,14 +699,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_u8_vec and add_u8_slice.
      */
-    fn read_u8_vec(&mut self) -> Vec<u8> {
-        let amount = self.read_u32() as usize;
-        self.ensure_extra_capacity(amount * 8);
+    fn read_u8_vec(&mut self) -> Result<Vec<u8>,BitInputError> {
+        let amount = self.read_u32()? as usize;
+        self.ensure_extra_capacity(amount * 8)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_u8());
         }
-        vec
+        Ok(vec)
     }
 
     /**
@@ -768,9 +786,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
      * add_some_u16s_from_slice and add_some_u16s_from_vec.
      */
-    fn read_u16s_to_slice(&mut self, dest: &mut [u16], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 16);
+    fn read_u16s_to_slice(&mut self, dest: &mut [u16], start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 16)?;
         self.read_direct_u16s_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -782,9 +801,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
     * add_some_u16s_from_slice and add_some_u16s_from_vec.
     */
-    fn read_u16s_to_vec(&mut self, dest: &mut Vec<u16>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 16);
+    fn read_u16s_to_vec(&mut self, dest: &mut Vec<u16>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 16)?;
         self.read_direct_u16s_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -797,9 +817,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_u16s_from_slice, add_u16s_from_vec,
     * add_some_u16s_from_slice and add_some_u16s_from_vec.
     */
-    fn read_u16s(&mut self, amount: usize) -> Vec<u16> {
-        self.ensure_extra_capacity(amount * 16);
-        self.read_direct_u16s(amount)
+    fn read_u16s(&mut self, amount: usize) -> Result<Vec<u16>,BitInputError> {
+        self.ensure_extra_capacity(amount * 16)?;
+        Ok(self.read_direct_u16s(amount))
     }
 
     /**
@@ -807,14 +827,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_u16_vec and add_u16_slice.
      */
-    fn read_u16_vec(&mut self) -> Vec<u16> {
-        let amount = self.read_u32() as usize;
-        self.ensure_extra_capacity(amount * 16);
+    fn read_u16_vec(&mut self) -> Result<Vec<u16>,BitInputError> {
+        let amount = self.read_u32()? as usize;
+        self.ensure_extra_capacity(amount * 16)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_u16());
         }
-        vec
+        Ok(vec)
     }
 
     /**
@@ -894,9 +914,10 @@ pub trait BitInput {
      * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
      * add_some_u32s_from_slice and add_some_u32s_from_vec.
      */
-    fn read_u32s_to_slice(&mut self, dest: &mut [u32], start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 32);
+    fn read_u32s_to_slice(&mut self, dest: &mut [u32], start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 32)?;
         self.read_direct_u32s_to_slice(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -908,9 +929,10 @@ pub trait BitInput {
     * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
     * add_some_u32s_from_slice and add_some_u32s_from_vec.
     */
-    fn read_u32s_to_vec(&mut self, dest: &mut Vec<u32>, start_index: usize, amount: usize) {
-        self.ensure_extra_capacity(amount * 32);
+    fn read_u32s_to_vec(&mut self, dest: &mut Vec<u32>, start_index: usize, amount: usize) -> Result<(),BitInputError> {
+        self.ensure_extra_capacity(amount * 32)?;
         self.read_direct_u32s_to_vec(dest, start_index, amount);
+        Ok(())
     }
 
     /**
@@ -923,9 +945,9 @@ pub trait BitInput {
     * The mirror functions of this function are add_u32s_from_slice, add_u32s_from_vec,
     * add_some_u32s_from_slice and add_some_u32s_from_vec.
     */
-    fn read_u32s(&mut self, amount: usize) -> Vec<u32> {
-        self.ensure_extra_capacity(amount * 32);
-        self.read_direct_u32s(amount)
+    fn read_u32s(&mut self, amount: usize) -> Result<Vec<u32>,BitInputError> {
+        self.ensure_extra_capacity(amount * 32)?;
+        Ok(self.read_direct_u32s(amount))
     }
 
     /**
@@ -933,14 +955,14 @@ pub trait BitInput {
      * 
      * The mirror functions of this function are add_u32_vec and add_u32_slice.
      */
-    fn read_u32_vec(&mut self) -> Vec<u32> {
-        let amount = self.read_u32() as usize;
-        self.ensure_extra_capacity(amount * 32);
+    fn read_u32_vec(&mut self) -> Result<Vec<u32>,BitInputError> {
+        let amount = self.read_u32()? as usize;
+        self.ensure_extra_capacity(amount * 32)?;
         let mut vec = Vec::with_capacity(amount);
         for _ in 0..amount {
             vec.push(self.read_direct_u32());
         }
-        vec
+        Ok(vec)
     }
 
     /**
@@ -993,9 +1015,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_i8.
      */
-    fn read_i8(&mut self) -> i8 {
-        self.ensure_extra_capacity(8);
-        self.read_direct_i8()
+    fn read_i8(&mut self) -> Result<i8,BitInputError> {
+        self.ensure_extra_capacity(8)?;
+        Ok(self.read_direct_i8())
     }
 
     /**
@@ -1003,9 +1025,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_u16.
      */
-    fn read_u8(&mut self) -> u8 {
-        self.ensure_extra_capacity(8);
-        self.read_direct_u8()
+    fn read_u8(&mut self) -> Result<u8,BitInputError> {
+        self.ensure_extra_capacity(8)?;
+        Ok(self.read_direct_u8())
     }
 
     /**
@@ -1013,9 +1035,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_i16.
      */
-    fn read_i16(&mut self) -> i16 {
-        self.ensure_extra_capacity(16);
-        self.read_direct_i16()
+    fn read_i16(&mut self) -> Result<i16,BitInputError> {
+        self.ensure_extra_capacity(16)?;
+        Ok(self.read_direct_i16())
     }
 
     /**
@@ -1023,9 +1045,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_u16.
      */
-    fn read_u16(&mut self) -> u16 {
-        self.ensure_extra_capacity(16);
-        self.read_direct_u16()
+    fn read_u16(&mut self) -> Result<u16,BitInputError> {
+        self.ensure_extra_capacity(16)?;
+        Ok(self.read_direct_u16())
     }
 
     /**
@@ -1033,9 +1055,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_i32.
      */
-    fn read_i32(&mut self) -> i32 {
-        self.ensure_extra_capacity(32);
-        self.read_direct_i32()
+    fn read_i32(&mut self) -> Result<i32,BitInputError> {
+        self.ensure_extra_capacity(32)?;
+        Ok(self.read_direct_i32())
     }
 
     /**
@@ -1043,9 +1065,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_u32.
      */
-    fn read_u32(&mut self) -> u32 {
-        self.ensure_extra_capacity(32);
-        self.read_direct_u32()
+    fn read_u32(&mut self) -> Result<u32,BitInputError> {
+        self.ensure_extra_capacity(32)?;
+        Ok(self.read_direct_u32())
     }
 
     /**
@@ -1054,10 +1076,10 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_sized_i64.
      */
-    fn read_sized_i64(&mut self, bits: usize) -> i64 {
+    fn read_sized_i64(&mut self, bits: usize) -> Result<i64,BitInputError> {
         let mut bools = [false; 64];
-        self.read_bools_to_slice(&mut bools, 0, bits);
-        bools_to_sized_i64(bits, &bools[0..bits], 0)
+        self.read_bools_to_slice(&mut bools, 0, bits)?;
+        Ok(bools_to_sized_i64(bits, &bools[0..bits], 0))
     }
 
     /**
@@ -1079,9 +1101,9 @@ pub trait BitInput {
      * 
      * The mirror function of this function is add_sized_u64.
      */
-    fn read_sized_u64(&mut self, bits: usize) -> u64 {
-        self.ensure_extra_capacity(bits);
-        self.read_direct_sized_u64(bits)
+    fn read_sized_u64(&mut self, bits: usize) -> Result<u64,BitInputError> {
+        self.ensure_extra_capacity(bits)?;
+        Ok(self.read_direct_sized_u64(bits))
     }
 
     /**
@@ -1096,19 +1118,18 @@ pub trait BitInput {
      * from returning None because None is completely valid and simply means that None was passed to the
      * add_string method of the corresponding bit output.
      * This method will never return an error if the source of this bit input comes from a string that has been
-     * stored in the corresponding bit output and the max_length is chosen carefully.
+     * stored in the corresponding bit output and the max_length is chosen carefully. So if you trust your input,
+     * you can safely unwrap the result.
      * 
      * The max_length parameter is only used as a safety check. The length of the string was previously stored
      * in the add_string method of the corresponding bit output. This method will read the length and return
      * an error if the read length is larger than the max_length. The max_length makes sure that corrupted
      * input will not lead to excessive memory allocation.
      * 
-     * If you don't care about compatiblity with java and javascript, you can use read_rust_string instead.
-     * 
      * The mirror function of this function is add_string.
      */
-    fn read_string(&mut self, max_length: usize) -> Result<Option<String>,&str> {
-        let amount1 = self.read_i8() as u8;
+    fn read_string(&mut self, max_length: usize) -> Result<Option<String>,BitInputError> {
+        let amount1 = self.read_i8()? as u8;
         if amount1 == 0 {
             return Ok(None);
         }
@@ -1116,19 +1137,19 @@ pub trait BitInput {
         if amount1 < 255 {
             length = amount1 as usize - 1;
         } else {
-            let length32 = self.read_i32();
+            let length32 = self.read_i32()?;
             if length32 < 0 {
-                return Err("Negative length");
+                return Err(BitInputError::StringLength(StringLengthError::negative(length32)));
             }
-            length = self.read_i32() as usize;
+            length = self.read_i32()? as usize;
         }
         if length == 0 {
             return Ok(Some(String::from("")));
         }
         if length > max_length {
-            return Err("Length is bigger than max_length");
+            return Err(BitInputError::StringLength(StringLengthError::long(length as i32, max_length)));
         }
-        self.ensure_extra_capacity(21);
+        self.ensure_extra_capacity(21)?;
         let min = self.read_direct_u16();
         let bit_count = self.read_direct_sized_u64(5) as usize;
         if bit_count == 0 {
@@ -1136,10 +1157,10 @@ pub trait BitInput {
             if result.is_ok(){
                 return Ok(Some(result.unwrap()));
             } else {
-                return Err("Invalid monotone string");
+                return Err(BitInputError::InvalidString(InvalidStringError));
             }
         } else {
-            self.ensure_extra_capacity(bit_count * length);
+            self.ensure_extra_capacity(bit_count * length)?;
             let mut chars = vec![0; length];
             for index in 0..length {
                 chars[index] = min + self.read_direct_sized_u64(bit_count) as u16;
@@ -1148,9 +1169,168 @@ pub trait BitInput {
             if result.is_ok(){
                 return Ok(Some(result.unwrap()));
             } else {
-                return Err("Invalid string");
+                return Err(BitInputError::InvalidString(InvalidStringError));
             }
         }
+    }
+}
+
+/**
+ * This enum represents 'everything' that can go wrong when an instance of BitInput is reading from
+ * bad data. If the input data is not trusted, these kind of errors should be handled properly and
+ * instead of causing the entire application to panic.
+ * 
+ * If the input data is trusted however, it should be safe to .unwrap() everything that is being
+ * read from the BitInput instance.
+ * 
+ * Currently, there are 3 errors that belong to this enum, namely InputCapacityError, InvalidStringError
+ * and StringLengthError. The latter 2 are only applicable when reading strings. The first one can be
+ * caused by almost any method.
+ */
+#[derive(Debug, PartialEq)]
+pub enum BitInputError {
+    InputCapacity(InputCapacityError),
+    InvalidString(InvalidStringError),
+    StringLength(StringLengthError)
+}
+
+/**
+ * The read_string method reads the length of the string first. If the read length is negative or too big,
+ * this error will be returned. 
+ * 
+ * Reading negative lengths is possible because the read_i32() method is
+ * sometimes used for reading the length. This one is used because that one is also used in java and
+ * javascript and it should be able to read strings that were written in java and javascript.
+ * 
+ * When the length is too long, a large vector (and later String) will have to be allocated to store it.
+ * If that is really big, the application could run out of memory. This means that reading strings from
+ * for instance web clients would be dangerous because a single malicious client could let the application
+ * run out of memory and crash.
+ */
+#[derive(Debug, PartialEq)]
+pub struct StringLengthError {
+    read_length: i32,
+    max_length: usize
+}
+
+impl StringLengthError {
+
+    pub fn negative(read_length: i32) -> StringLengthError {
+        StringLengthError {
+            read_length: read_length,
+            max_length: 0
+        }
+    }
+
+    pub fn long(read_length: i32, max_length: usize) -> StringLengthError {
+        StringLengthError {
+            read_length: read_length,
+            max_length: max_length
+        }
+    }
+}
+
+impl std::fmt::Display for StringLengthError {
+
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        if self.read_length < 0 {
+            write!(formatter, "Read negative string length ({})", self.read_length)
+        } else {
+            write!(formatter, "Read string length {}, but the maximum allowed length is {}", self.read_length, self.max_length)
+        }
+    }
+}
+
+impl std::error::Error for StringLengthError {
+
+    fn description(&self) -> &str {
+        if self.read_length < 0 {
+            "The read string length was negative, but strings can't have a negative length"
+        } else {
+            "The read string length is longer that the maximum allowed string length"
+        }
+    }
+
+    fn cause(&self) -> Option<&std::error::Error> {
+        None
+    }
+}
+
+/**
+ * In order to read a string, the read_string method of BitInput will prepare a u16 vector that
+ * will hold the string content until it is finished. Then it will be actually converted to a
+ * String. If that u16 vector happens to contain invalid utf-16 data, this error will be returned.
+ */
+#[derive(Debug, PartialEq)]
+pub struct InvalidStringError;
+
+impl std::fmt::Display for InvalidStringError {
+
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(formatter, "Attempted to read a string with an invalid encoding")
+    }
+}
+
+impl std::error::Error for InvalidStringError {
+
+    fn description(&self) -> &str {
+        "Attempted to read a string with an invalid encoding"
+    }
+
+    fn cause(&self) -> Option<&std::error::Error> {
+        None
+    }
+}
+
+/**
+ * This is the most common BitInputError. This one will be returned when an attempt is made to read more
+ * data from the BitInput than it has. This could happen when for instance not all data has been loaded
+ * into the BitInput.
+ */
+#[derive(Debug, PartialEq)]
+pub struct InputCapacityError {
+    current_capacity: usize,
+    max_capacity: usize,
+    requested_extra_capacity: usize
+}
+
+impl InputCapacityError {
+
+    pub fn current_capacity(&self) -> usize {
+        self.current_capacity
+    }
+
+    pub fn max_capacity(&self) -> usize {
+        self.max_capacity
+    }
+
+    pub fn requested_extra_capacity(&self) -> usize {
+        self.requested_extra_capacity
+    }
+}
+
+impl std::convert::From<InputCapacityError> for BitInputError {
+
+    fn from(error: InputCapacityError) -> BitInputError {
+        BitInputError::InputCapacity(error)
+    }
+}
+
+impl std::fmt::Display for InputCapacityError {
+
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(formatter, "Current capacity is {} and maximum capacity is {}, but {} more was requested", self.current_capacity, self.max_capacity, self.requested_extra_capacity)
+    }
+}
+
+impl std::error::Error for InputCapacityError {
+
+    fn description(&self) -> &str {
+        "Not enough input data is available to read data from"
+    }
+
+    fn cause(&self) -> Option<&std::error::Error> {
+        None
     }
 }
 
@@ -1183,9 +1363,15 @@ impl<'a> BitInput for BoolSliceBitInput<'a> {
         result
     }
 
-    fn ensure_extra_capacity(&mut self, additional: usize){
+    fn ensure_extra_capacity(&mut self, additional: usize) -> Result<(),InputCapacityError> {
         if self.read_index + additional > self.bools.len() {
-            panic!("length is {}, but read_index is {} and additional is {}", self.bools.len(), self.read_index, additional);
+            Err(InputCapacityError {
+                current_capacity: self.read_index,
+                max_capacity: self.bools.len(),
+                requested_extra_capacity: additional
+            })
+        } else {
+            Ok(())
         }
     }
 
@@ -1247,10 +1433,16 @@ impl BitInput for I8VecBitInput {
         }
     }
 
-    fn ensure_extra_capacity(&mut self, boolean_amount: usize){
+    fn ensure_extra_capacity(&mut self, boolean_amount: usize) -> Result<(),InputCapacityError> {
         let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
         if remaining < boolean_amount {
-            panic!("{} more booleans should be readable, but we only have {} left", boolean_amount, remaining);
+            Err(InputCapacityError {
+                current_capacity: self.bool_index,
+                max_capacity: self.vector.len(),
+                requested_extra_capacity: boolean_amount
+            })
+        } else {
+            Ok(())
         }
     }
 
@@ -1339,10 +1531,16 @@ impl BitInput for U8VecBitInput {
         }
     }
 
-    fn ensure_extra_capacity(&mut self, boolean_amount: usize){
+    fn ensure_extra_capacity(&mut self, boolean_amount: usize) -> Result<(),InputCapacityError> {
         let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
         if remaining < boolean_amount {
-            panic!("{} more booleans should be readable, but we only have {} left", boolean_amount, remaining);
+            Err(InputCapacityError {
+                current_capacity: self.bool_index + 8 * self.byte_index,
+                max_capacity: 8 * self.vector.len(),
+                requested_extra_capacity: boolean_amount
+            })
+        } else {
+            Ok(())
         }
     }
 
