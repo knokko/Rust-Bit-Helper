@@ -320,6 +320,41 @@ mod tests {
         output.add_i8s_from_vec(&vec![-1, -2, 1, 2, 72, 53]);
         output.add_some_i8s_from_slice(&[-78, 88, 19, 58, -90], 1, 3);
         output.add_some_i8s_from_vec(&vec![37, 83, 73, -65], 1, 2);
+
+        output.add_i16_slice(&[3483, -3498, 31834, -32745, 31834, 9834, -3456]);
+        output.add_i16_vec(&vec![8374, -32756, 31234, -845, 0, 2324]);
+        output.add_i16s_from_slice(&[3487, 8252, -9424, -12345, 8745]);
+        output.add_i16s_from_vec(&vec![23742, -4573, 12, 8457, -31245]);
+        output.add_some_i16s_from_slice(&[5328, -31587, 2374, 742, -455], 1, 3);
+        output.add_some_i16s_from_vec(&vec![-4567, 7651, 324, -7325], 0, 2);
+
+        output.add_i32_slice(&[9453948, 837247, -2378347, 18342, -347]);
+        output.add_i32_vec(&vec![-4739, 347129, 179348, -8457834]);
+        output.add_i32s_from_slice(&[7467, -34974857, 237834834, -6823, 101]);
+        output.add_i32s_from_vec(&vec![64354, -735192, 9472, 43472823]);
+        output.add_some_i32s_from_slice(&[1000, -274583634, 86374573, 9234671, 5132343, 1000], 1, 4);
+        output.add_some_i32s_from_vec(&vec![2000, 2000, 85736372, -1763487, 2000], 2, 2);
+
+        output.add_u8_slice(&[42, 11, 127, 100, 0, 21]);
+        output.add_u8_vec(&vec![36, 128, 45, 96]);
+        output.add_u8s_from_slice(&[111, 111, 35, 97, 69]);
+        output.add_u8s_from_vec(&vec![1, 2, 1, 2, 72, 53]);
+        output.add_some_u8s_from_slice(&[78, 88, 19, 58, 90], 1, 3);
+        output.add_some_u8s_from_vec(&vec![37, 83, 73, 65], 1, 2);
+
+        output.add_u16_slice(&[3483, 3498, 31834, 32745, 31834, 9834, 3456]);
+        output.add_u16_vec(&vec![8374, 32756, 31234, 845, 0, 2324]);
+        output.add_u16s_from_slice(&[3487, 8252, 9424, 12345, 8745]);
+        output.add_u16s_from_vec(&vec![23742, 4573, 12, 8457, 31245]);
+        output.add_some_u16s_from_slice(&[5328, 31587, 2374, 742, 455], 1, 3);
+        output.add_some_u16s_from_vec(&vec![4567, 7651, 324, 7325], 0, 2);
+
+        output.add_u32_slice(&[9453948, 837247, 2378347, 18342, 347]);
+        output.add_u32_vec(&vec![4739, 347129, 179348, 8457834]);
+        output.add_u32s_from_slice(&[7467, 34974857, 237834834, 6823, 101]);
+        output.add_u32s_from_vec(&vec![64354, 735192, 9472, 43472823]);
+        output.add_some_u32s_from_slice(&[1000, 274583634, 86374573, 9234671, 5132343, 1000], 1, 4);
+        output.add_some_u32s_from_vec(&vec![2000, 2000, 85736372, 1763487, 2000], 2, 2);
     }
 
     fn check_stuff_in_bit_input(input: &mut BitInput){
@@ -351,6 +386,62 @@ mod tests {
         let mut test_i8_slice = [-6; 2];
         input.read_i8s_to_slice(&mut test_i8_slice, 0, 2);
         assert_eq!(test_i8_slice, [83, 73]);
+
+        assert_eq!(input.read_i16_vec(), vec![3483, -3498, 31834, -32745, 31834, 9834, -3456]);
+        assert_eq!(input.read_i16_vec(), vec![8374, -32756, 31234, -845, 0, 2324]);
+        assert_eq!(input.read_i16s(5), vec![3487, 8252, -9424, -12345, 8745]);
+        assert_eq!(input.read_i16s(5), vec![23742, -4573, 12, 8457, -31245]);
+        let mut test_i16_vec = vec![1; 10];
+        input.read_i16s_to_vec(&mut test_i16_vec, 2, 3);
+        assert_eq!(test_i16_vec, vec![1, 1, -31587, 2374, 742, 1, 1, 1, 1, 1]);
+        let mut test_i16_array = [1; 5];
+        input.read_i16s_to_slice(&mut test_i16_array, 1, 2);
+        assert_eq!(test_i16_array, [1, -4567, 7651, 1, 1]);
+
+        assert_eq!(input.read_i32_vec(), vec![9453948, 837247, -2378347, 18342, -347]);
+        assert_eq!(input.read_i32_vec(), vec![-4739, 347129, 179348, -8457834]);
+        assert_eq!(input.read_i32s(5), vec![7467, -34974857, 237834834, -6823, 101]);
+        assert_eq!(input.read_i32s(4), vec![64354, -735192, 9472, 43472823]);
+        let mut test_i32_vec = vec![1; 8];
+        input.read_i32s_to_vec(&mut test_i32_vec, 1, 4);
+        assert_eq!(test_i32_vec, vec![1, -274583634, 86374573, 9234671, 5132343, 1, 1, 1]);
+        let mut test_i32_array = [2; 8];
+        input.read_i32s_to_slice(&mut test_i32_array, 3, 2);
+        assert_eq!(test_i32_array, [2, 2, 2, 85736372, -1763487, 2, 2, 2]);
+
+
+        assert_eq!(input.read_u8_vec(), vec![42, 11, 127, 100, 0, 21]);
+        assert_eq!(input.read_u8_vec(), vec![36, 128, 45, 96]);
+        assert_eq!(input.read_u8s(5), vec![111, 111, 35, 97, 69]);
+        assert_eq!(input.read_u8s(6), vec![1, 2, 1, 2, 72, 53]);
+        let mut test_u8_vec = vec![4; 3];
+        input.read_u8s_to_vec(&mut test_u8_vec, 0, 3);
+        assert_eq!(test_u8_vec, vec![88, 19, 58]);
+        let mut test_u8_slice = [6; 2];
+        input.read_u8s_to_slice(&mut test_u8_slice, 0, 2);
+        assert_eq!(test_u8_slice, [83, 73]);
+
+        assert_eq!(input.read_u16_vec(), vec![3483, 3498, 31834, 32745, 31834, 9834, 3456]);
+        assert_eq!(input.read_u16_vec(), vec![8374, 32756, 31234, 845, 0, 2324]);
+        assert_eq!(input.read_u16s(5), vec![3487, 8252, 9424, 12345, 8745]);
+        assert_eq!(input.read_u16s(5), vec![23742, 4573, 12, 8457, 31245]);
+        let mut test_u16_vec = vec![1; 10];
+        input.read_u16s_to_vec(&mut test_u16_vec, 2, 3);
+        assert_eq!(test_u16_vec, vec![1, 1, 31587, 2374, 742, 1, 1, 1, 1, 1]);
+        let mut test_u16_array = [1; 5];
+        input.read_u16s_to_slice(&mut test_u16_array, 1, 2);
+        assert_eq!(test_u16_array, [1, 4567, 7651, 1, 1]);
+
+        assert_eq!(input.read_u32_vec(), vec![9453948, 837247, 2378347, 18342, 347]);
+        assert_eq!(input.read_u32_vec(), vec![4739, 347129, 179348, 8457834]);
+        assert_eq!(input.read_u32s(5), vec![7467, 34974857, 237834834, 6823, 101]);
+        assert_eq!(input.read_u32s(4), vec![64354, 735192, 9472, 43472823]);
+        let mut test_u32_vec = vec![1; 8];
+        input.read_u32s_to_vec(&mut test_u32_vec, 1, 4);
+        assert_eq!(test_u32_vec, vec![1, 274583634, 86374573, 9234671, 5132343, 1, 1, 1]);
+        let mut test_u32_array = [2; 8];
+        input.read_u32s_to_slice(&mut test_u32_array, 3, 2);
+        assert_eq!(test_u32_array, [2, 2, 2, 85736372, 1763487, 2, 2, 2]);
     }
 
     #[test]
