@@ -1061,15 +1061,96 @@ pub trait BitInput {
     }
 
     /**
+     * Reads the unsigned integer that has been stored in the next 'bits' bits, without checking
+     * if there is enough capacity left in this bit input. This is useful for compactly storing
+     * integers that do not really need 64 bits to be stored, but for instance only 43.
+     * 
+     * The mirror function of this function is add_sized_u64.
+     */
+    fn read_direct_sized_u64(&mut self, bits: usize) -> u64 {
+        let mut bools = [false; 64];
+        self.read_direct_bools_to_slice(&mut bools, 0, bits);
+        bools_to_sized_u64(bits, &bools[0..bits], 0)
+    }
+
+    /**
      * Reads the unsigned integer that has been stored in the next 'bits' bits. This is useful for compactly storing
      * integers that do not really need 64 bits to be stored, but for instance only 43.
      * 
      * The mirror function of this function is add_sized_u64.
      */
     fn read_sized_u64(&mut self, bits: usize) -> u64 {
-        let mut bools = [false; 64];
-        self.read_bools_to_slice(&mut bools, 0, bits);
-        bools_to_sized_u64(bits, &bools[0..bits], 0)
+        self.ensure_extra_capacity(bits);
+        self.read_direct_sized_u64(bits)
+    }
+
+    /**
+     * Reads an optional string from this bit input. This method uses a weird encoding and returns an option instead
+     * of just a string to make it compatible with the java and javascript bithelper variants.
+     * 
+     * A value of None in this method is equivalent to null (and undefined) in java and javascript. Reading a Some
+     * in this method is equivalent to reading a non-null string in java or javascript.
+     * 
+     * This method also wraps the option into a Result because it is possible that no valid string is read from
+     * this bit input or that the read length of the string exceeds the provided maximum length.. This differs 
+     * from returning None because None is completely valid and simply means that None was passed to the
+     * add_string method of the corresponding bit output.
+     * This method will never return an error if the source of this bit input comes from a string that has been
+     * stored in the corresponding bit output and the max_length is chosen carefully.
+     * 
+     * The max_length parameter is only used as a safety check. The length of the string was previously stored
+     * in the add_string method of the corresponding bit output. This method will read the length and return
+     * an error if the read length is larger than the max_length. The max_length makes sure that corrupted
+     * input will not lead to excessive memory allocation.
+     * 
+     * If you don't care about compatiblity with java and javascript, you can use read_rust_string instead.
+     * 
+     * The mirror function of this function is add_string.
+     */
+    fn read_string(&mut self, max_length: usize) -> Result<Option<String>,&str> {
+        let amount1 = self.read_i8() as u8;
+        if amount1 == 0 {
+            return Ok(None);
+        }
+        let length;
+        if amount1 < 255 {
+            length = amount1 as usize - 1;
+        } else {
+            let length32 = self.read_i32();
+            if length32 < 0 {
+                return Err("Negative length");
+            }
+            length = self.read_i32() as usize;
+        }
+        if length == 0 {
+            return Ok(Some(String::from("")));
+        }
+        if length > max_length {
+            return Err("Length is bigger than max_length");
+        }
+        self.ensure_extra_capacity(21);
+        let min = self.read_direct_u16();
+        let bit_count = self.read_direct_sized_u64(5) as usize;
+        if bit_count == 0 {
+            let result = String::from_utf16(vec![min; length].as_slice());
+            if result.is_ok(){
+                return Ok(Some(result.unwrap()));
+            } else {
+                return Err("Invalid monotone string");
+            }
+        } else {
+            self.ensure_extra_capacity(bit_count * length);
+            let mut chars = vec![0; length];
+            for index in 0..length {
+                chars[index] = min + self.read_direct_sized_u64(bit_count) as u16;
+            }
+            let result = String::from_utf16(chars.as_slice());
+            if result.is_ok(){
+                return Ok(Some(result.unwrap()));
+            } else {
+                return Err("Invalid string");
+            }
+        }
     }
 }
 

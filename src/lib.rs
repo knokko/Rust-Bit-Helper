@@ -314,6 +314,9 @@ mod tests {
         output.add_some_bools_from_slice(&[false, true, false, true, false], 1, 3);
         output.add_some_bools_from_vec(&vec![true, false, false, true], 1, 2);
 
+        output.add_string(Some(String::from("𝄞music")));
+        output.add_string(None);
+
         output.add_i8_slice(&[-42, 11, 127, 100, 0, -21]);
         output.add_i8_vec(&vec![36, -128, -45, 96]);
         output.add_i8s_from_slice(&[111, -111, 35, 97, -69]);
@@ -384,6 +387,9 @@ mod tests {
         let mut test_bool_slice = [true; 2];
         input.read_bools_to_slice(&mut test_bool_slice, 0, 2);
         assert_eq!(test_bool_slice, [false, false]);
+
+        assert_eq!(input.read_string(7), Ok(Some(String::from("𝄞music"))));
+        assert_eq!(input.read_string(0), Ok(None));
 
         assert_eq!(input.read_i8_vec(), vec![-42, 11, 127, 100, 0, -21]);
         assert_eq!(input.read_i8_vec(), vec![36, -128, -45, 96]);

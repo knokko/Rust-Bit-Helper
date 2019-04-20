@@ -1423,6 +1423,24 @@ pub trait BitOutput {
     }
 
     /**
+     * Stores the given unsigned integer using the given amount of bits, without checking if
+     * there is enough capacity left in this bit output. The number of bits
+     * can be any integer in the interval [0, 64]. This function allows you to store integers
+     * that only need 41 bits for instance.
+     * 
+     * The given value must be in the range [0, 2^bits - 1]. If it is not, this function will panic.
+     * 
+     * The mirror function of this function is read_sized_u64.
+     */
+    fn add_direct_sized_u64(&mut self, value: u64, bits: usize){
+
+        // Array lengths must be known at compile time, so we can't just create an array of the exact right length
+        let mut buffer = [false; 64];
+        sized_u64_to_bools(value, bits, &mut buffer, 0);
+        self.add_direct_bools_from_slice(&buffer[0..bits]);
+    }
+
+    /**
      * Stores the given unsigned integer using the given amount of bits. The number of bits
      * can be any integer in the interval [0, 64]. This function allows you to store integers
      * that only need 41 bits for instance.
@@ -1432,12 +1450,83 @@ pub trait BitOutput {
      * The mirror function of this function is read_sized_u64.
      */
     fn add_sized_u64(&mut self, value: u64, bits: usize){
-
-        // Array lengths must be known at compile time, so we can't just create an array of the exact right length
-        let mut buffer = [false; 64];
-        sized_u64_to_bools(value, bits, &mut buffer, 0);
-        self.add_bools_from_slice(&buffer[0..bits]);
+        self.ensure_extra_capacity(bits);
+        self.add_direct_sized_u64(value, bits);
     }
+
+    /**
+     * Adds a string option to this bit output. This method uses a string option instead of just
+     * a string and uses a quite weird encoding to make this method compatible with the java and
+     * javascript variants of add_string and read_string.
+     * 
+     * When None is passed as value, the read_string of the corresponding input will return None
+     * and the java and javascript variants will read null.
+     * When some string is passed, the read_string of the corresponding input will return a Some
+     * containing an equivalent string as the one passed to this method.
+     * 
+     * If you don't care about compatibility with java and javascript, you can use add_rust_string
+     * instead.
+     * 
+     * The mirror function of this function is read_string.
+     */
+    fn add_string(&mut self, value: Option<String>){
+        if value.is_none() {
+            self.add_i8(0);
+        } else {
+            self.ensure_extra_capacity(29);
+
+            let string = value.unwrap();
+
+            let length = string.encode_utf16().count();
+            if length < 254 {
+                self.add_direct_i8((length + 1) as i8);
+            } else {
+                self.ensure_extra_capacity(32);
+                self.add_direct_i8(-1);
+                self.add_direct_i32(length as i32);
+            }
+
+            if string.len() > 0 {
+                let min = string.encode_utf16().min().unwrap();
+                let max = string.encode_utf16().max().unwrap();
+
+                let difference = max - min;
+                let bit_count;
+                if difference == 0 {
+                    bit_count = 0;
+                } else {
+                    bit_count = get_required_bits(difference as u64) as usize;
+                }
+
+                self.add_direct_u16(min);
+                self.add_direct_sized_u64(bit_count as u64, 5);
+
+                if difference > 0 {
+                    self.ensure_extra_capacity(bit_count * length);
+                    let mut iterator = string.encode_utf16();
+                    let mut maybe_next = iterator.next();
+                    while maybe_next.is_some() {
+                        let next = maybe_next.unwrap();
+                        self.add_direct_sized_u64((next - min) as u64, bit_count);
+                        maybe_next = iterator.next();
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn get_required_bits(number: u64) -> u8 {
+    if number.checked_mul(2).is_none() {
+        return 64;
+    }
+    let mut current = 1;
+    let mut power = 0;
+    while current <= number {
+        current *= 2;
+        power += 1;
+    }
+    power
 }
 
 /**
