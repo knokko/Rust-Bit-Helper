@@ -335,6 +335,15 @@ mod tests {
         output.add_some_i32s_from_slice(&[1000, -274583634, 86374573, 9234671, 5132343, 1000], 1, 4);
         output.add_some_i32s_from_vec(&vec![2000, 2000, 85736372, -1763487, 2000], 2, 2);
 
+        output.add_sized_i64(-15, 5);
+        output.add_sized_i64(5000000000, 34);
+        output.add_sized_i64(i64::min_value(), 64);
+        output.add_sized_i64(i64::max_value(), 64);
+
+        output.add_sized_u64(127, 7);
+        output.add_sized_u64(0, 0);
+        output.add_sized_u64(u64::max_value(), 64);
+
         output.add_u8_slice(&[42, 11, 127, 100, 0, 21]);
         output.add_u8_vec(&vec![36, 128, 45, 96]);
         output.add_u8s_from_slice(&[111, 111, 35, 97, 69]);
@@ -409,6 +418,14 @@ mod tests {
         input.read_i32s_to_slice(&mut test_i32_array, 3, 2);
         assert_eq!(test_i32_array, [2, 2, 2, 85736372, -1763487, 2, 2, 2]);
 
+        assert_eq!(input.read_sized_i64(5), -15);
+        assert_eq!(input.read_sized_i64(34), 5000000000);
+        assert_eq!(input.read_sized_i64(64), i64::min_value());
+        assert_eq!(input.read_sized_i64(64), i64::max_value());
+
+        assert_eq!(input.read_sized_u64(7), 127);
+        assert_eq!(input.read_sized_u64(0), 0);
+        assert_eq!(input.read_sized_u64(64), u64::max_value());
 
         assert_eq!(input.read_u8_vec(), vec![42, 11, 127, 100, 0, 21]);
         assert_eq!(input.read_u8_vec(), vec![36, 128, 45, 96]);
@@ -445,15 +462,36 @@ mod tests {
     }
 
     #[test]
-    fn test_integer_to_bools(){
+    fn test_sized_i64_to_bools(){
         let mut integer = -9223372036854775808;
         while integer < 23738474347634 {
-            let mut as_bools = [false; 64];
-            signed_int_to_bools(integer, 64, &mut as_bools, 0);
-            let reverted = bools_to_signed_int(64, &as_bools, 0);
-            assert_eq!(integer, reverted);
-
+            test_single_sized_i64(integer);
             integer += 9538274823127357;
         }
+        test_single_sized_i64(0);
+    }
+
+    fn test_single_sized_i64(integer: i64){
+        let mut as_bools = [false; 64];
+        sized_i64_to_bools(integer, 64, &mut as_bools, 0);
+        let reverted = bools_to_sized_i64(64, &as_bools, 0);
+        assert_eq!(integer, reverted);
+    }
+
+    #[test]
+    fn test_sized_u64_to_bools(){
+        let mut integer = u64::max_value();
+        let step_size = 3487384783472473;
+        while integer > step_size {
+            test_single_sized_u64(integer);
+            integer -= step_size;
+        }
+    }
+
+    fn test_single_sized_u64(integer: u64){
+        let mut as_bools = [false; 64];
+        sized_u64_to_bools(integer, 64, &mut as_bools, 0);
+        let reverted = bools_to_sized_u64(64, &as_bools, 0);
+        assert_eq!(integer, reverted);
     }
 }

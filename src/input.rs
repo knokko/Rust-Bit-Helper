@@ -1047,6 +1047,30 @@ pub trait BitInput {
         self.ensure_extra_capacity(32);
         self.read_direct_u32()
     }
+
+    /**
+     * Reads the signed integer that has been stored in the next 'bits' bits. This is useful for compactly storing
+     * integers that actually only need for instance 47 bits.
+     * 
+     * The mirror function of this function is add_sized_i64.
+     */
+    fn read_sized_i64(&mut self, bits: usize) -> i64 {
+        let mut bools = [false; 64];
+        self.read_bools_to_slice(&mut bools, 0, bits);
+        bools_to_sized_i64(bits, &bools[0..bits], 0)
+    }
+
+    /**
+     * Reads the unsigned integer that has been stored in the next 'bits' bits. This is useful for compactly storing
+     * integers that do not really need 64 bits to be stored, but for instance only 43.
+     * 
+     * The mirror function of this function is add_sized_u64.
+     */
+    fn read_sized_u64(&mut self, bits: usize) -> u64 {
+        let mut bools = [false; 64];
+        self.read_bools_to_slice(&mut bools, 0, bits);
+        bools_to_sized_u64(bits, &bools[0..bits], 0)
+    }
 }
 
 pub struct BoolSliceBitInput<'a> {

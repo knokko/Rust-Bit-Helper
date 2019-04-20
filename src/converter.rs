@@ -28,7 +28,7 @@ fn check_overflow(number: i64, size_bits: usize){
  * store integers that for instance only need 37 bits. This function will panic if the given number of booleans
  * is not enough to store the given integer.
  */
-pub fn signed_int_to_bools(integer: i64, bits: usize, dest: &mut [bool], start_index: usize){
+pub fn sized_i64_to_bools(integer: i64, bits: usize, dest: &mut [bool], start_index: usize){
     let size_bits = bits - 1;
     check_bitcount(size_bits);
     check_overflow(integer, size_bits);
@@ -55,14 +55,14 @@ pub fn signed_int_to_bools(integer: i64, bits: usize, dest: &mut [bool], start_i
 
 /**
  * Converts a bool slice (back) to a signed integer. This function is made to convert the booleans stored by
- * signed_int_to_bools back to the original integer value. The bits parameter must be the same one as the
- * bits parameter supplied to signed_int_to_bools.
+ * sized_i64_to_bools back to the original integer value. The bits parameter must be the same one as the
+ * bits parameter supplied to sized_i64_to_bools.
  * 
  * The first bit will be used to determine the sign of the number. 0 for negative and 1 for a positive
  * number. The other bits will be used to store the magnitude of the number. If the number was negative,
  * it will be substracted by 1 at the end (so if the magnitude was stored as 2, the result will be -3).
  */
-pub fn bools_to_signed_int(bits: usize, bools: &[bool], start_index: usize) -> i64 {
+pub fn bools_to_sized_i64(bits: usize, bools: &[bool], start_index: usize) -> i64 {
     let size_bits = bits - 1;
     check_bitcount(size_bits);
     let mut integer: i64 = 0;
@@ -75,6 +75,60 @@ pub fn bools_to_signed_int(bits: usize, bools: &[bool], start_index: usize) -> i
 
     if !bools[start_index] {
         integer = -integer - 1;
+    }
+
+    integer
+}
+
+
+
+
+
+fn check_unsigned_bitcount(size_bits: usize){
+    if size_bits > 64 {
+        panic!("You can't use more than 64 bits to store the magnitude of an unsigned integer, but you are using {} bits", size_bits);
+    }
+}
+
+fn check_unsigned_overflow(number: u64, size_bits: usize){
+    if size_bits != 64 && (POWERS[size_bits] <= number) {
+        panic!("The magnitude of the integer {} can't be stored using only {} bits.", number, size_bits);
+    }
+}
+
+/**
+ * Converts an unsigned integer to booleans using the given number of bits/booleans. The result will be placed in
+ * dest (the parameter) and the first boolean will be stored in dest[start_index]. This function can be used to
+ * store integers that for instance only need 37 bits. This function will panic if the given number of booleans
+ * is not enough to store the given integer.
+ */
+pub fn sized_u64_to_bools(mut integer: u64, bits: usize, dest: &mut [bool], start_index: usize){
+    check_unsigned_bitcount(bits);
+    check_unsigned_overflow(integer, bits);
+
+    for index in 1..=bits {
+        if integer >= POWERS[bits - index] {
+            integer -= POWERS[bits - index];
+            dest[start_index + index - 1] = true;
+        } else {
+            dest[start_index + index - 1] = false;
+        }
+    }
+}
+
+/**
+ * Converts a bool slice (back) to an unsigned integer. This function is made to convert the booleans stored by
+ * sized_u64_to_bools back to the original integer value. The bits parameter must be the same one as the
+ * bits parameter supplied to sized_u64_to_bools.
+ */
+pub fn bools_to_sized_u64(bits: usize, bools: &[bool], start_index: usize) -> u64 {
+    check_unsigned_bitcount(bits);
+    let mut integer: u64 = 0;
+
+    for b in 1..=bits {
+        if bools[start_index + b - 1] {
+            integer += POWERS[bits - b];
+        }
     }
 
     integer

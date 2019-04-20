@@ -1412,15 +1412,31 @@ pub trait BitOutput {
      * The given value must be in the interval [-2^(bits - 1), 2^(bits - 1) - 1]. If it is not,
      * this function will panic.
      * 
-     * The mirror function of this function is read_signed_int.
+     * The mirror function of this function is read_sized_i64.
      */
-    fn add_var_int64(&mut self, value: i64, bits: usize){
-        self.ensure_extra_capacity(bits);
+    fn add_sized_i64(&mut self, value: i64, bits: usize){
 
         // It is not allowed to create a variable length array, so 64 is the safe choise
         let mut buffer = [false; 64];
-        signed_int_to_bools(value, bits, &mut buffer, 0);
-        self.add_direct_bool_slice(&buffer[0..bits]);
+        sized_i64_to_bools(value, bits, &mut buffer, 0);
+        self.add_bools_from_slice(&buffer[0..bits]);
+    }
+
+    /**
+     * Stores the given unsigned integer using the given amount of bits. The number of bits
+     * can be any integer in the interval [0, 64]. This function allows you to store integers
+     * that only need 41 bits for instance.
+     * 
+     * The given value must be in the range [0, 2^bits - 1]. If it is not, this function will panic.
+     * 
+     * The mirror function of this function is read_sized_u64.
+     */
+    fn add_sized_u64(&mut self, value: u64, bits: usize){
+
+        // Array lengths must be known at compile time, so we can't just create an array of the exact right length
+        let mut buffer = [false; 64];
+        sized_u64_to_bools(value, bits, &mut buffer, 0);
+        self.add_bools_from_slice(&buffer[0..bits]);
     }
 }
 
