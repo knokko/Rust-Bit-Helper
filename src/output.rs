@@ -1469,7 +1469,7 @@ pub trait BitOutput {
      * 
      * The mirror function of this function is read_string.
      */
-    fn add_string(&mut self, value: Option<String>){
+    fn add_string(&mut self, value: Option<&String>){
         if value.is_none() {
             self.add_i8(0);
         } else {
