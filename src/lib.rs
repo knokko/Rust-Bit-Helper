@@ -249,6 +249,11 @@ mod tests {
         let mut output = U8VecBitOutput::with_capacity(10);
         put_stuff_in_bit_output(&mut output);
         output.terminate();
+
+        let mut ref_input = U8VecRefBitInput::new(&output.vector);
+        check_stuff_in_bit_input(&mut ref_input);
+        ref_input.terminate();
+        
         let mut input = U8VecBitInput::new(output.vector);
         check_stuff_in_bit_input(&mut input);
         input.terminate();

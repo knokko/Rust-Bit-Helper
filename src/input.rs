@@ -1482,6 +1482,8 @@ impl I8VecBitInput {
  * A BitInput implementation that reads from a u8 vector. The most straightforward way to create an instance
  * of U8VecBitInput is by using U8VecBitInput::new(vector) where vector comes from an instance of U8VecBitOutput.
  * Using U8VecBitInput is preferred over BoolSliceBitInput because boolean arrays use surprisingly much memory.
+ * 
+ * Terminating an U8VecBitInput will clear its vector.
  */
 pub struct U8VecBitInput {
 
@@ -1569,6 +1571,103 @@ impl U8VecBitInput {
      */
     pub fn with_start_index(vector: Vec<u8>, start_index: usize) -> U8VecBitInput {
         U8VecBitInput {
+            vector: vector,
+            byte_index: start_index,
+            bool_index: 0
+        }
+    }
+}
+
+/**
+ * A BitInput implementation that reads its data from a reference to a u8 vector. Unlike, U8VecBitInput,
+ * this struct will NOT own the vector it reads from and thus won't clear it when its terminate method
+ * is called.
+ */
+pub struct U8VecRefBitInput<'a> {
+
+    vector: &'a Vec<u8>,
+    byte_index: usize,
+    bool_index: usize
+}
+
+impl<'a> BitInput for U8VecRefBitInput<'a> {
+
+    fn read_direct_bool(&mut self) -> bool {
+        if self.bool_index == 7 {
+            self.bool_index = 0;
+            let result_byte = self.vector[self.byte_index] as i8;
+            self.byte_index += 1;
+            return result_byte >= 0;
+        } else {
+            let result = i8_to_bool_array(self.vector[self.byte_index] as i8)[self.bool_index];
+            self.bool_index += 1;
+            return result;
+        }
+    }
+
+    fn read_direct_i8(&mut self) -> i8 {
+        if self.bool_index == 0 {
+            let result = self.vector[self.byte_index] as i8;
+            self.byte_index += 1;
+            return result;
+        } else {
+            let mut bools = [false; 8];
+            let first_bools = i8_to_bool_array(self.vector[self.byte_index] as i8);
+            self.byte_index += 1;
+            let second_bools = i8_to_bool_array(self.vector[self.byte_index] as i8);
+            let mut index = 0;
+            while self.bool_index < 8 {
+                bools[index] = first_bools[self.bool_index];
+                index += 1;
+                self.bool_index += 1;
+            }
+            self.bool_index = 0;
+            while index < 8 {
+                bools[index] = second_bools[self.bool_index];
+                index += 1;
+                self.bool_index += 1;
+            }
+            return bool_array_to_i8(bools);
+        }
+    }
+
+    fn ensure_extra_capacity(&mut self, boolean_amount: usize) -> Result<(),InputCapacityError> {
+        let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
+        if remaining < boolean_amount {
+            Err(InputCapacityError {
+                current_capacity: self.bool_index + 8 * self.byte_index,
+                max_capacity: 8 * self.vector.len(),
+                requested_extra_capacity: boolean_amount
+            })
+        } else {
+            Ok(())
+        }
+    }
+
+    fn terminate(&mut self){
+        // We don't own the vector, so we can't clear it
+    }
+}
+
+impl<'a> U8VecRefBitInput<'a> {
+
+    /**
+     * Creates a new U8VecBitInput that will read from the given vector and start with the first u8 of the vector.
+     */
+    pub fn new(vector: &Vec<u8>) -> U8VecRefBitInput {
+        U8VecRefBitInput {
+            vector: vector,
+            byte_index: 0,
+            bool_index: 0
+        }
+    }
+
+    /**
+     * Creates a new U8VecBitInput that will read from the given vector and start at the given start_index. So,
+     * vector[start_index] will be the first u8 value that will be read.
+     */
+    pub fn with_start_index(vector: &Vec<u8>, start_index: usize) -> U8VecRefBitInput {
+        U8VecRefBitInput {
             vector: vector,
             byte_index: start_index,
             bool_index: 0
