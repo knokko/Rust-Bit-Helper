@@ -1194,6 +1194,13 @@ pub enum BitInputError {
     StringLength(StringLengthError)
 }
 
+impl std::fmt::Display for BitInputError {
+
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 /**
  * The read_string method reads the length of the string first. If the read length is negative or too big,
  * this error will be returned. 
