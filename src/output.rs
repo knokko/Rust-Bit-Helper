@@ -1405,6 +1405,25 @@ pub trait BitOutput {
     }
 
     /**
+     * Stores the given signed integer using the given amount of bits, without checking if there
+     * is enough capacity left in this BitOutput. The number of bits
+     * can be any integer in the interval [0, 64]. This function allows you to store integers
+     * that only need for instance 37 bits compactly.
+     * 
+     * The given value must be in the interval [-2^(bits - 1), 2^(bits - 1) - 1]. If it is not,
+     * this function will panic.
+     * 
+     * The mirror function of this function is read_sized_i64.
+     */
+    fn add_direct_sized_i64(&mut self, value: i64, bits: usize){
+
+        // It is not allowed to create a variable length array, so 64 is the safe choise
+        let mut buffer = [false; 64];
+        sized_i64_to_bools(value, bits, &mut buffer, 0);
+        self.add_direct_bools_from_slice(&buffer[0..bits]);
+    }
+
+    /**
      * Stores the given signed integer using the given amount of bits. The number of bits
      * can be any integer in the interval [0, 64]. This function allows you to store integers
      * that only need for instance 37 bits compactly.
@@ -1415,11 +1434,8 @@ pub trait BitOutput {
      * The mirror function of this function is read_sized_i64.
      */
     fn add_sized_i64(&mut self, value: i64, bits: usize){
-
-        // It is not allowed to create a variable length array, so 64 is the safe choise
-        let mut buffer = [false; 64];
-        sized_i64_to_bools(value, bits, &mut buffer, 0);
-        self.add_bools_from_slice(&buffer[0..bits]);
+        self.ensure_extra_capacity(bits);
+        self.add_direct_sized_i64(value, bits);
     }
 
     /**
@@ -1452,6 +1468,45 @@ pub trait BitOutput {
     fn add_sized_u64(&mut self, value: u64, bits: usize){
         self.ensure_extra_capacity(bits);
         self.add_direct_sized_u64(value, bits);
+    }
+
+    /**
+     * Stores the given u64 such that it will take more memory depending on how big it is, without checking
+     * if there is enough capacity left in this BitOutput. The bigger the value is, the more bits it will
+     * take to store it. This is useful for scenarios where the value is expected to be small, but this will
+     * backfire (take extra bits) if the given value is big (roughly 2^58 or bigger).
+     * 
+     * The mirror function of this function is read_var_u64.
+     */
+    fn add_direct_var_u64(&mut self, value: u64){
+        let bits = get_required_bits(value);
+        if bits > 0 {
+            self.add_direct_sized_u64((bits - 1) as u64, 6);
+            self.add_direct_sized_u64(value, bits as usize);
+        } else {
+            self.add_direct_sized_u64(0, 6);
+            self.add_direct_bool(false);
+        }
+    }
+
+    /**
+     * Stores the given u64 such that it will take more memory depending on how big it is. The bigger the value is, 
+     * the more bits it will take to store it. This is useful for scenarios where the value is expected to be small, 
+     * but this will backfire (take extra bits) if the given value is big (roughly 2^58 or bigger).
+     * 
+     * The mirror function of this function is read_var_u64.
+     */
+    fn add_var_u64(&mut self, value: u64){
+        let bits = get_required_bits(value);
+        if bits > 0 {
+            self.ensure_extra_capacity(6 + bits as usize);
+            self.add_direct_sized_u64((bits - 1) as u64, 6);
+            self.add_direct_sized_u64(value, bits as usize);
+        } else {
+            self.ensure_extra_capacity(7);
+            self.add_direct_sized_u64(0, 6);
+            self.add_direct_bool(false);
+        }
     }
 
     /**

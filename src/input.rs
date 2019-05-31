@@ -1107,6 +1107,22 @@ pub trait BitInput {
     }
 
     /**
+     * The mirror function of this function is add_var_u64.
+     */
+    fn read_direct_var_u64(&mut self) -> u64 {
+        let bits = self.read_direct_sized_u64(6) + 1;
+        self.read_direct_sized_u64(bits as usize)
+    }
+
+    /**
+     * The mirror function of this function is add_var_u64.
+     */
+    fn read_var_u64(&mut self) -> Result<u64,BitInputError> {
+        let bits = self.read_sized_u64(6)? + 1;
+        self.read_sized_u64(bits as usize)
+    }
+
+    /**
      * Reads an optional string from this bit input. This method uses a weird encoding and returns an option instead
      * of just a string to make it compatible with the java and javascript bithelper variants.
      * 

@@ -352,6 +352,11 @@ mod tests {
         output.add_sized_u64(0, 0);
         output.add_sized_u64(u64::max_value(), 64);
 
+        output.add_var_u64(0);
+        output.add_var_u64(1);
+        output.add_var_u64(123456);
+        output.add_var_u64(u64::max_value());
+
         output.add_u8_slice(&[42, 11, 127, 100, 0, 21]);
         output.add_u8_vec(&vec![36, 128, 45, 96]);
         output.add_u8s_from_slice(&[111, 111, 35, 97, 69]);
@@ -437,6 +442,11 @@ mod tests {
         assert_eq!(input.read_sized_u64(7).unwrap(), 127);
         assert_eq!(input.read_sized_u64(0).unwrap(), 0);
         assert_eq!(input.read_sized_u64(64).unwrap(), u64::max_value());
+
+        assert_eq!(input.read_var_u64().unwrap(), 0);
+        assert_eq!(input.read_var_u64().unwrap(), 1);
+        assert_eq!(input.read_var_u64().unwrap(), 123456);
+        assert_eq!(input.read_var_u64().unwrap(), u64::max_value());
 
         assert_eq!(input.read_u8_vec().unwrap(), vec![42, 11, 127, 100, 0, 21]);
         assert_eq!(input.read_u8_vec().unwrap(), vec![36, 128, 45, 96]);
