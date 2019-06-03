@@ -1,29 +1,73 @@
 pub mod converter;
-pub mod output;
 pub mod input;
+pub mod output;
 
 #[cfg(test)]
 mod tests {
 
     use crate::converter::*;
-    use crate::output::*;
     use crate::input::*;
+    use crate::output::*;
 
     #[test]
     fn int8s_to_booleans() {
-
         // Only 256 possible values, so just test them all
         for element in i8::min_value()..=i8::max_value() {
             let boolean_tuple = i8_to_bool_tuple(element);
             let boolean_array = i8_to_bool_array(element);
 
             let reverted1 = bool_tuple_to_i8(boolean_tuple);
-            let reverted2 = bools_to_i8(boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7);
-            let reverted3 = bool_array_to_i8([boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
-            let reverted4 = bool_slice_to_i8(&[boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
+            let reverted2 = bools_to_i8(
+                boolean_tuple.0,
+                boolean_tuple.1,
+                boolean_tuple.2,
+                boolean_tuple.3,
+                boolean_tuple.4,
+                boolean_tuple.5,
+                boolean_tuple.6,
+                boolean_tuple.7,
+            );
+            let reverted3 = bool_array_to_i8([
+                boolean_tuple.0,
+                boolean_tuple.1,
+                boolean_tuple.2,
+                boolean_tuple.3,
+                boolean_tuple.4,
+                boolean_tuple.5,
+                boolean_tuple.6,
+                boolean_tuple.7,
+            ]);
+            let reverted4 = bool_slice_to_i8(&[
+                boolean_tuple.0,
+                boolean_tuple.1,
+                boolean_tuple.2,
+                boolean_tuple.3,
+                boolean_tuple.4,
+                boolean_tuple.5,
+                boolean_tuple.6,
+                boolean_tuple.7,
+            ]);
 
-            let reverted5 = bool_tuple_to_i8((boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]));
-            let reverted6 = bools_to_i8(boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]);
+            let reverted5 = bool_tuple_to_i8((
+                boolean_array[0],
+                boolean_array[1],
+                boolean_array[2],
+                boolean_array[3],
+                boolean_array[4],
+                boolean_array[5],
+                boolean_array[6],
+                boolean_array[7],
+            ));
+            let reverted6 = bools_to_i8(
+                boolean_array[0],
+                boolean_array[1],
+                boolean_array[2],
+                boolean_array[3],
+                boolean_array[4],
+                boolean_array[5],
+                boolean_array[6],
+                boolean_array[7],
+            );
             let reverted7 = bool_array_to_i8(boolean_array);
             let reverted8 = bool_slice_to_i8(&boolean_array);
 
@@ -46,12 +90,57 @@ mod tests {
             let boolean_array = u8_to_boolean_array(element);
 
             let reverted1 = boolean_tuple_to_u8(boolean_tuple);
-            let reverted2 = booleans_to_u8(boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7);
-            let reverted3 = boolean_array_to_u8([boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
-            let reverted4 = boolean_slice_to_u8(&[boolean_tuple.0, boolean_tuple.1, boolean_tuple.2, boolean_tuple.3, boolean_tuple.4, boolean_tuple.5, boolean_tuple.6, boolean_tuple.7]);
+            let reverted2 = booleans_to_u8(
+                boolean_tuple.0,
+                boolean_tuple.1,
+                boolean_tuple.2,
+                boolean_tuple.3,
+                boolean_tuple.4,
+                boolean_tuple.5,
+                boolean_tuple.6,
+                boolean_tuple.7,
+            );
+            let reverted3 = boolean_array_to_u8([
+                boolean_tuple.0,
+                boolean_tuple.1,
+                boolean_tuple.2,
+                boolean_tuple.3,
+                boolean_tuple.4,
+                boolean_tuple.5,
+                boolean_tuple.6,
+                boolean_tuple.7,
+            ]);
+            let reverted4 = boolean_slice_to_u8(&[
+                boolean_tuple.0,
+                boolean_tuple.1,
+                boolean_tuple.2,
+                boolean_tuple.3,
+                boolean_tuple.4,
+                boolean_tuple.5,
+                boolean_tuple.6,
+                boolean_tuple.7,
+            ]);
 
-            let reverted5 = boolean_tuple_to_u8((boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]));
-            let reverted6 = booleans_to_u8(boolean_array[0], boolean_array[1], boolean_array[2], boolean_array[3], boolean_array[4], boolean_array[5], boolean_array[6], boolean_array[7]);
+            let reverted5 = boolean_tuple_to_u8((
+                boolean_array[0],
+                boolean_array[1],
+                boolean_array[2],
+                boolean_array[3],
+                boolean_array[4],
+                boolean_array[5],
+                boolean_array[6],
+                boolean_array[7],
+            ));
+            let reverted6 = booleans_to_u8(
+                boolean_array[0],
+                boolean_array[1],
+                boolean_array[2],
+                boolean_array[3],
+                boolean_array[4],
+                boolean_array[5],
+                boolean_array[6],
+                boolean_array[7],
+            );
             let reverted7 = boolean_array_to_u8(boolean_array);
             let reverted8 = boolean_slice_to_u8(&boolean_array);
 
@@ -68,7 +157,6 @@ mod tests {
 
     #[test]
     fn test_i8_to_i16() {
-
         // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
         for short in i16::min_value()..=i16::max_value() {
             let byte1 = i16_to_i8_1(short);
@@ -95,7 +183,6 @@ mod tests {
 
     #[test]
     fn test_i8_to_u16() {
-
         // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
         for short in 0..=u16::max_value() {
             let byte1 = u16_to_i8_1(short);
@@ -122,7 +209,6 @@ mod tests {
 
     #[test]
     fn test_i8_to_i32() {
-
         // 4 billion tests is not so nice, so let's skip some values...
         let mut counter = 0;
         let mut int = i32::min_value();
@@ -160,7 +246,6 @@ mod tests {
 
     #[test]
     fn test_i8_to_u32() {
-
         // 4 billion tests is not so nice, so let's skip some values...
         let mut counter = 0;
         let mut int = 0;
@@ -198,7 +283,6 @@ mod tests {
 
     #[test]
     fn test_i8_to_i64() {
-
         // We simply can't test all 2^64 possible values, so we will have to test a very small sample of them
         let mut counter = 0;
         let mut int = i64::min_value();
@@ -248,7 +332,6 @@ mod tests {
 
     #[test]
     fn test_i8_to_u64() {
-
         // We simply can't test all 2^64 possible values, so we will have to test a very small sample of them
         let mut counter = 0;
         let mut int = 0;
@@ -298,7 +381,6 @@ mod tests {
 
     #[test]
     fn test_u8_to_i16() {
-
         // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
         for short in -32768i16..=32767 {
             let byte1 = i16_to_u8_1(short);
@@ -325,7 +407,6 @@ mod tests {
 
     #[test]
     fn test_u8_to_i32() {
-
         // 4 billion tests is not so nice, so let's skip some values...
         let mut counter = 0;
         let mut int = -2147483648;
@@ -362,7 +443,7 @@ mod tests {
     }
 
     #[test]
-    fn test_bool_array_bit_io(){
+    fn test_bool_array_bit_io() {
         let mut output = BoolVecBitOutput::new(10);
         put_stuff_in_bit_output(&mut output);
         let mut input = BoolSliceBitInput::new(output.get_slice());
@@ -370,7 +451,7 @@ mod tests {
     }
 
     #[test]
-    fn test_i8_vec_bit_io(){
+    fn test_i8_vec_bit_io() {
         let mut output = I8VecBitOutput::with_capacity(10);
         put_stuff_in_bit_output(&mut output);
         output.terminate();
@@ -381,7 +462,7 @@ mod tests {
 
     #[test]
 
-    fn test_i8_vec_bit_output_capacity(){
+    fn test_i8_vec_bit_output_capacity() {
         let mut output = I8VecBitOutput::with_capacity(0);
         assert_eq!(output.vector.capacity(), 0);
         output.ensure_extra_capacity(64);
@@ -402,7 +483,7 @@ mod tests {
     }
 
     #[test]
-    fn test_u8_vec_bit_io(){
+    fn test_u8_vec_bit_io() {
         let mut output = U8VecBitOutput::with_capacity(10);
         put_stuff_in_bit_output(&mut output);
         output.terminate();
@@ -410,14 +491,14 @@ mod tests {
         let mut ref_input = U8VecRefBitInput::new(&output.vector);
         check_stuff_in_bit_input(&mut ref_input);
         ref_input.terminate();
-        
+
         let mut input = U8VecBitInput::new(output.vector);
         check_stuff_in_bit_input(&mut input);
         input.terminate();
     }
 
     #[test]
-    fn test_u8_vec_bit_output_capacity(){
+    fn test_u8_vec_bit_output_capacity() {
         let mut output = U8VecBitOutput::with_capacity(0);
         assert_eq!(output.vector.capacity(), 0);
         output.ensure_extra_capacity(32);
@@ -439,7 +520,7 @@ mod tests {
 
     #[test]
 
-    fn test_cross_i8_u8_vec_bit_io(){
+    fn test_cross_i8_u8_vec_bit_io() {
         let mut u_output = U8VecBitOutput::with_capacity(10);
         put_stuff_in_bit_output(&mut u_output);
         u_output.terminate();
@@ -461,7 +542,7 @@ mod tests {
         }
     }
 
-    fn put_stuff_in_bit_output(output: &mut BitOutput){
+    fn put_stuff_in_bit_output(output: &mut BitOutput) {
         output.add_bools_from_slice(&[false, true, true, false, true]);
         output.add_bool(true);
         output.add_i8(-125);
@@ -501,7 +582,11 @@ mod tests {
         output.add_i32_vec(&vec![-4739, 347129, 179348, -8457834]);
         output.add_i32s_from_slice(&[7467, -34974857, 237834834, -6823, 101]);
         output.add_i32s_from_vec(&vec![64354, -735192, 9472, 43472823]);
-        output.add_some_i32s_from_slice(&[1000, -274583634, 86374573, 9234671, 5132343, 1000], 1, 4);
+        output.add_some_i32s_from_slice(
+            &[1000, -274583634, 86374573, 9234671, 5132343, 1000],
+            1,
+            4,
+        );
         output.add_some_i32s_from_vec(&vec![2000, 2000, 85736372, -1763487, 2000], 2, 2);
 
         output.add_sized_i64(-15, 5);
@@ -540,8 +625,11 @@ mod tests {
         output.add_some_u32s_from_vec(&vec![2000, 2000, 85736372, 1763487, 2000], 2, 2);
     }
 
-    fn check_stuff_in_bit_input(input: &mut BitInput){
-        assert_eq!(input.read_bools(5).unwrap(), vec![false, true, true, false, true]);
+    fn check_stuff_in_bit_input(input: &mut BitInput) {
+        assert_eq!(
+            input.read_bools(5).unwrap(),
+            vec![false, true, true, false, true]
+        );
         assert_eq!(input.read_bool().unwrap(), true);
         assert_eq!(input.read_i8().unwrap(), -125);
         assert_eq!(input.read_u8().unwrap(), 234);
@@ -552,21 +640,38 @@ mod tests {
         assert_eq!(input.read_i64().unwrap(), -387238347374627346);
         assert_eq!(input.read_u64().unwrap(), 823464823672346);
 
-        assert_eq!(input.read_bool_vec().unwrap(), vec![false, false, true, false, true, true]);
-        assert_eq!(input.read_bool_vec().unwrap(), vec![true, true, false, false]);
-        assert_eq!(input.read_bools(5).unwrap(), vec![true, false, true, false, true]);
-        assert_eq!(input.read_bools(6).unwrap(), vec![false, false, false, true, false, true]);
+        assert_eq!(
+            input.read_bool_vec().unwrap(),
+            vec![false, false, true, false, true, true]
+        );
+        assert_eq!(
+            input.read_bool_vec().unwrap(),
+            vec![true, true, false, false]
+        );
+        assert_eq!(
+            input.read_bools(5).unwrap(),
+            vec![true, false, true, false, true]
+        );
+        assert_eq!(
+            input.read_bools(6).unwrap(),
+            vec![false, false, false, true, false, true]
+        );
         let mut test_bool_vec = vec![false; 3];
         input.read_bools_to_vec(&mut test_bool_vec, 0, 3).unwrap();
         assert_eq!(test_bool_vec, vec![true, false, true]);
         let mut test_bool_slice = [true; 2];
-        input.read_bools_to_slice(&mut test_bool_slice, 0, 2).unwrap();
+        input
+            .read_bools_to_slice(&mut test_bool_slice, 0, 2)
+            .unwrap();
         assert_eq!(test_bool_slice, [false, false]);
 
         assert_eq!(input.read_string(7), Ok(Some(String::from("𝄞music"))));
         assert_eq!(input.read_string(0), Ok(None));
 
-        assert_eq!(input.read_i8_vec().unwrap(), vec![-42, 11, 127, 100, 0, -21]);
+        assert_eq!(
+            input.read_i8_vec().unwrap(),
+            vec![-42, 11, 127, 100, 0, -21]
+        );
         assert_eq!(input.read_i8_vec().unwrap(), vec![36, -128, -45, 96]);
         assert_eq!(input.read_i8s(5).unwrap(), vec![111, -111, 35, 97, -69]);
         assert_eq!(input.read_i8s(6).unwrap(), vec![-1, -2, 1, 2, 72, 53]);
@@ -577,10 +682,22 @@ mod tests {
         input.read_i8s_to_slice(&mut test_i8_slice, 0, 2).unwrap();
         assert_eq!(test_i8_slice, [83, 73]);
 
-        assert_eq!(input.read_i16_vec().unwrap(), vec![3483, -3498, 31834, -32745, 31834, 9834, -3456]);
-        assert_eq!(input.read_i16_vec().unwrap(), vec![8374, -32756, 31234, -845, 0, 2324]);
-        assert_eq!(input.read_i16s(5).unwrap(), vec![3487, 8252, -9424, -12345, 8745]);
-        assert_eq!(input.read_i16s(5).unwrap(), vec![23742, -4573, 12, 8457, -31245]);
+        assert_eq!(
+            input.read_i16_vec().unwrap(),
+            vec![3483, -3498, 31834, -32745, 31834, 9834, -3456]
+        );
+        assert_eq!(
+            input.read_i16_vec().unwrap(),
+            vec![8374, -32756, 31234, -845, 0, 2324]
+        );
+        assert_eq!(
+            input.read_i16s(5).unwrap(),
+            vec![3487, 8252, -9424, -12345, 8745]
+        );
+        assert_eq!(
+            input.read_i16s(5).unwrap(),
+            vec![23742, -4573, 12, 8457, -31245]
+        );
         let mut test_i16_vec = vec![1; 10];
         input.read_i16s_to_vec(&mut test_i16_vec, 2, 3).unwrap();
         assert_eq!(test_i16_vec, vec![1, 1, -31587, 2374, 742, 1, 1, 1, 1, 1]);
@@ -588,13 +705,28 @@ mod tests {
         input.read_i16s_to_slice(&mut test_i16_array, 1, 2).unwrap();
         assert_eq!(test_i16_array, [1, -4567, 7651, 1, 1]);
 
-        assert_eq!(input.read_i32_vec().unwrap(), vec![9453948, 837247, -2378347, 18342, -347]);
-        assert_eq!(input.read_i32_vec().unwrap(), vec![-4739, 347129, 179348, -8457834]);
-        assert_eq!(input.read_i32s(5).unwrap(), vec![7467, -34974857, 237834834, -6823, 101]);
-        assert_eq!(input.read_i32s(4).unwrap(), vec![64354, -735192, 9472, 43472823]);
+        assert_eq!(
+            input.read_i32_vec().unwrap(),
+            vec![9453948, 837247, -2378347, 18342, -347]
+        );
+        assert_eq!(
+            input.read_i32_vec().unwrap(),
+            vec![-4739, 347129, 179348, -8457834]
+        );
+        assert_eq!(
+            input.read_i32s(5).unwrap(),
+            vec![7467, -34974857, 237834834, -6823, 101]
+        );
+        assert_eq!(
+            input.read_i32s(4).unwrap(),
+            vec![64354, -735192, 9472, 43472823]
+        );
         let mut test_i32_vec = vec![1; 8];
         input.read_i32s_to_vec(&mut test_i32_vec, 1, 4).unwrap();
-        assert_eq!(test_i32_vec, vec![1, -274583634, 86374573, 9234671, 5132343, 1, 1, 1]);
+        assert_eq!(
+            test_i32_vec,
+            vec![1, -274583634, 86374573, 9234671, 5132343, 1, 1, 1]
+        );
         let mut test_i32_array = [2; 8];
         input.read_i32s_to_slice(&mut test_i32_array, 3, 2).unwrap();
         assert_eq!(test_i32_array, [2, 2, 2, 85736372, -1763487, 2, 2, 2]);
@@ -624,10 +756,22 @@ mod tests {
         input.read_u8s_to_slice(&mut test_u8_slice, 0, 2).unwrap();
         assert_eq!(test_u8_slice, [83, 73]);
 
-        assert_eq!(input.read_u16_vec().unwrap(), vec![3483, 3498, 31834, 32745, 31834, 9834, 3456]);
-        assert_eq!(input.read_u16_vec().unwrap(), vec![8374, 32756, 31234, 845, 0, 2324]);
-        assert_eq!(input.read_u16s(5).unwrap(), vec![3487, 8252, 9424, 12345, 8745]);
-        assert_eq!(input.read_u16s(5).unwrap(), vec![23742, 4573, 12, 8457, 31245]);
+        assert_eq!(
+            input.read_u16_vec().unwrap(),
+            vec![3483, 3498, 31834, 32745, 31834, 9834, 3456]
+        );
+        assert_eq!(
+            input.read_u16_vec().unwrap(),
+            vec![8374, 32756, 31234, 845, 0, 2324]
+        );
+        assert_eq!(
+            input.read_u16s(5).unwrap(),
+            vec![3487, 8252, 9424, 12345, 8745]
+        );
+        assert_eq!(
+            input.read_u16s(5).unwrap(),
+            vec![23742, 4573, 12, 8457, 31245]
+        );
         let mut test_u16_vec = vec![1; 10];
         input.read_u16s_to_vec(&mut test_u16_vec, 2, 3).unwrap();
         assert_eq!(test_u16_vec, vec![1, 1, 31587, 2374, 742, 1, 1, 1, 1, 1]);
@@ -635,13 +779,28 @@ mod tests {
         input.read_u16s_to_slice(&mut test_u16_array, 1, 2).unwrap();
         assert_eq!(test_u16_array, [1, 4567, 7651, 1, 1]);
 
-        assert_eq!(input.read_u32_vec().unwrap(), vec![9453948, 837247, 2378347, 18342, 347]);
-        assert_eq!(input.read_u32_vec().unwrap(), vec![4739, 347129, 179348, 8457834]);
-        assert_eq!(input.read_u32s(5).unwrap(), vec![7467, 34974857, 237834834, 6823, 101]);
-        assert_eq!(input.read_u32s(4).unwrap(), vec![64354, 735192, 9472, 43472823]);
+        assert_eq!(
+            input.read_u32_vec().unwrap(),
+            vec![9453948, 837247, 2378347, 18342, 347]
+        );
+        assert_eq!(
+            input.read_u32_vec().unwrap(),
+            vec![4739, 347129, 179348, 8457834]
+        );
+        assert_eq!(
+            input.read_u32s(5).unwrap(),
+            vec![7467, 34974857, 237834834, 6823, 101]
+        );
+        assert_eq!(
+            input.read_u32s(4).unwrap(),
+            vec![64354, 735192, 9472, 43472823]
+        );
         let mut test_u32_vec = vec![1; 8];
         input.read_u32s_to_vec(&mut test_u32_vec, 1, 4).unwrap();
-        assert_eq!(test_u32_vec, vec![1, 274583634, 86374573, 9234671, 5132343, 1, 1, 1]);
+        assert_eq!(
+            test_u32_vec,
+            vec![1, 274583634, 86374573, 9234671, 5132343, 1, 1, 1]
+        );
         let mut test_u32_array = [2; 8];
         input.read_u32s_to_slice(&mut test_u32_array, 3, 2).unwrap();
         assert_eq!(test_u32_array, [2, 2, 2, 85736372, 1763487, 2, 2, 2]);
@@ -651,12 +810,12 @@ mod tests {
         match capacity_error {
             BitInputError::StringLength(_) => panic!("Should have been capacity error"),
             BitInputError::InputCapacity(c) => assert_eq!(c.requested_extra_capacity(), 32),
-            BitInputError::InvalidString(_) => panic!("Should have been capacity error")
+            BitInputError::InvalidString(_) => panic!("Should have been capacity error"),
         };
     }
 
     #[test]
-    fn test_sized_i64_to_bools(){
+    fn test_sized_i64_to_bools() {
         let mut integer = -9223372036854775808;
         while integer < 23738474347634 {
             test_single_sized_i64(integer);
@@ -665,7 +824,7 @@ mod tests {
         test_single_sized_i64(0);
     }
 
-    fn test_single_sized_i64(integer: i64){
+    fn test_single_sized_i64(integer: i64) {
         let mut as_bools = [false; 64];
         sized_i64_to_bools(integer, 64, &mut as_bools, 0);
         let reverted = bools_to_sized_i64(64, &as_bools, 0);
@@ -673,7 +832,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sized_u64_to_bools(){
+    fn test_sized_u64_to_bools() {
         let mut integer = u64::max_value();
         let step_size = 3487384783472473;
         while integer > step_size {
@@ -682,7 +841,7 @@ mod tests {
         }
     }
 
-    fn test_single_sized_u64(integer: u64){
+    fn test_single_sized_u64(integer: u64) {
         let mut as_bools = [false; 64];
         sized_u64_to_bools(integer, 64, &mut as_bools, 0);
         let reverted = bools_to_sized_u64(64, &as_bools, 0);
