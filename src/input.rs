@@ -1010,6 +1010,30 @@ pub trait BitInput {
         i8s_to_u32(self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8())
     }
 
+    /// Reads an i64 value from this BitInput without checking if there is enough capacity left in this BitInput.
+    /// 
+    /// The mirror function of this function is add_i64
+    fn read_direct_i64(&mut self) -> i64 {
+        i8s_to_i64(self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(),
+        self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8())
+    }
+
+    /// Reads a u64 value from this BitInput without checking if there is enough capacity left.
+    /// 
+    /// The mirror function of this function is add_u64.
+    fn read_direct_u64(&mut self) -> u64 {
+        i8s_to_u64(self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(),
+        self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8(), self.read_direct_i8())
+    }
+
+    /// Reads a boolean value from this BitInput.
+    /// 
+    /// The mirror function of this function is add_bool.
+    fn read_bool(&mut self) -> Result<bool,BitInputError> {
+        self.ensure_extra_capacity(1)?;
+        Ok(self.read_direct_bool())
+    }
+
     /**
      * Reads an i8 value from this BitInput.
      * 
@@ -1068,6 +1092,22 @@ pub trait BitInput {
     fn read_u32(&mut self) -> Result<u32,BitInputError> {
         self.ensure_extra_capacity(32)?;
         Ok(self.read_direct_u32())
+    }
+
+    /// Reads an i64 value from this BitInput.
+    /// 
+    /// The mirror function of this function is add_i64.
+    fn read_i64(&mut self) -> Result<i64,BitInputError> {
+        self.ensure_extra_capacity(64)?;
+        Ok(self.read_direct_i64())
+    }
+
+    /// Reads a u64 value from this BitInput.
+    /// 
+    /// The mirror function of this function is add_u64.
+    fn read_u64(&mut self) -> Result<u64,BitInputError> {
+        self.ensure_extra_capacity(64)?;
+        Ok(self.read_direct_u64())
     }
 
     /**

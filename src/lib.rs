@@ -13,7 +13,7 @@ mod tests {
     fn int8s_to_booleans() {
 
         // Only 256 possible values, so just test them all
-        for element in -128i8..=127i8 {
+        for element in i8::min_value()..=i8::max_value() {
             let boolean_tuple = i8_to_bool_tuple(element);
             let boolean_array = i8_to_bool_array(element);
 
@@ -40,14 +40,8 @@ mod tests {
 
     #[test]
     fn uint8s_to_booleans() {
-        let mut l: u64 = 1;
-        for _ in 0..63 {
-            print!("{}, ", l);
-            l *= 2;
-        }
-
         // Only 256 possible values, so just test them all
-        for element in 0u8..=255 {
+        for element in 0..=u8::max_value() {
             let boolean_tuple = u8_to_boolean_tuple(element);
             let boolean_array = u8_to_boolean_array(element);
 
@@ -76,7 +70,7 @@ mod tests {
     fn test_i8_to_i16() {
 
         // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
-        for short in -32768i16..=32767 {
+        for short in i16::min_value()..=i16::max_value() {
             let byte1 = i16_to_i8_1(short);
             let byte2 = i16_to_i8_2(short);
             let pair = i16_to_i8_tuple(short);
@@ -100,11 +94,38 @@ mod tests {
     }
 
     #[test]
+    fn test_i8_to_u16() {
+
+        // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
+        for short in 0..=u16::max_value() {
+            let byte1 = u16_to_i8_1(short);
+            let byte2 = u16_to_i8_2(short);
+            let pair = u16_to_i8_tuple(short);
+            let array = u16_to_i8_array(short);
+
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+
+            let reverted1 = i8s_to_u16(byte1, byte2);
+            let reverted2 = i8_tuple_to_u16(pair);
+            let reverted3 = i8_array_to_u16(array);
+            let reverted4 = i8_slice_to_u16(&array);
+
+            assert_eq!(short, reverted1);
+            assert_eq!(short, reverted2);
+            assert_eq!(short, reverted3);
+            assert_eq!(short, reverted4);
+        }
+    }
+
+    #[test]
     fn test_i8_to_i32() {
 
         // 4 billion tests is not so nice, so let's skip some values...
         let mut counter = 0;
-        let mut int = -2147483648;
+        let mut int = i32::min_value();
         while counter < 34000 {
             let byte1 = i32_to_i8_1(int);
             let byte2 = i32_to_i8_2(int);
@@ -137,9 +158,145 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_i8_to_u32() {
 
+        // 4 billion tests is not so nice, so let's skip some values...
+        let mut counter = 0;
+        let mut int = 0;
+        while counter < 34000 {
+            let byte1 = u32_to_i8_1(int);
+            let byte2 = u32_to_i8_2(int);
+            let byte3 = u32_to_i8_3(int);
+            let byte4 = u32_to_i8_4(int);
+            let pair = u32_to_i8_tuple(int);
+            let array = u32_to_i8_array(int);
 
-        #[test]
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte3, pair.2);
+            assert_eq!(byte4, pair.3);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+            assert_eq!(byte3, array[2]);
+            assert_eq!(byte4, array[3]);
+
+            let reverted1 = i8s_to_u32(byte1, byte2, byte3, byte4);
+            let reverted2 = i8_tuple_to_u32(pair);
+            let reverted3 = i8_array_to_u32(array);
+            let reverted4 = i8_slice_to_u32(&array);
+
+            assert_eq!(int, reverted1);
+            assert_eq!(int, reverted2);
+            assert_eq!(int, reverted3);
+            assert_eq!(int, reverted4);
+
+            int += 123456;
+            counter += 1;
+        }
+    }
+
+    #[test]
+    fn test_i8_to_i64() {
+
+        // We simply can't test all 2^64 possible values, so we will have to test a very small sample of them
+        let mut counter = 0;
+        let mut int = i64::min_value();
+        while counter < 34000 {
+            let byte1 = i64_to_i8_1(int);
+            let byte2 = i64_to_i8_2(int);
+            let byte3 = i64_to_i8_3(int);
+            let byte4 = i64_to_i8_4(int);
+            let byte5 = i64_to_i8_5(int);
+            let byte6 = i64_to_i8_6(int);
+            let byte7 = i64_to_i8_7(int);
+            let byte8 = i64_to_i8_8(int);
+            let pair = i64_to_i8_tuple(int);
+            let array = i64_to_i8_array(int);
+
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte3, pair.2);
+            assert_eq!(byte4, pair.3);
+            assert_eq!(byte5, pair.4);
+            assert_eq!(byte6, pair.5);
+            assert_eq!(byte7, pair.6);
+            assert_eq!(byte8, pair.7);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+            assert_eq!(byte3, array[2]);
+            assert_eq!(byte4, array[3]);
+            assert_eq!(byte5, array[4]);
+            assert_eq!(byte6, array[5]);
+            assert_eq!(byte7, array[6]);
+            assert_eq!(byte8, array[7]);
+
+            let reverted1 = i8s_to_i64(byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8);
+            let reverted2 = i8_tuple_to_i64(pair);
+            let reverted3 = i8_array_to_i64(array);
+            let reverted4 = i8_slice_to_i64(&array);
+
+            assert_eq!(int, reverted1);
+            assert_eq!(int, reverted2);
+            assert_eq!(int, reverted3);
+            assert_eq!(int, reverted4);
+
+            int += 512_345_678_901_234;
+            counter += 1;
+        }
+    }
+
+    #[test]
+    fn test_i8_to_u64() {
+
+        // We simply can't test all 2^64 possible values, so we will have to test a very small sample of them
+        let mut counter = 0;
+        let mut int = 0;
+        while counter < 34000 {
+            let byte1 = u64_to_i8_1(int);
+            let byte2 = u64_to_i8_2(int);
+            let byte3 = u64_to_i8_3(int);
+            let byte4 = u64_to_i8_4(int);
+            let byte5 = u64_to_i8_5(int);
+            let byte6 = u64_to_i8_6(int);
+            let byte7 = u64_to_i8_7(int);
+            let byte8 = u64_to_i8_8(int);
+            let pair = u64_to_i8_tuple(int);
+            let array = u64_to_i8_array(int);
+
+            assert_eq!(byte1, pair.0);
+            assert_eq!(byte2, pair.1);
+            assert_eq!(byte3, pair.2);
+            assert_eq!(byte4, pair.3);
+            assert_eq!(byte5, pair.4);
+            assert_eq!(byte6, pair.5);
+            assert_eq!(byte7, pair.6);
+            assert_eq!(byte8, pair.7);
+            assert_eq!(byte1, array[0]);
+            assert_eq!(byte2, array[1]);
+            assert_eq!(byte3, array[2]);
+            assert_eq!(byte4, array[3]);
+            assert_eq!(byte5, array[4]);
+            assert_eq!(byte6, array[5]);
+            assert_eq!(byte7, array[6]);
+            assert_eq!(byte8, array[7]);
+
+            let reverted1 = i8s_to_u64(byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8);
+            let reverted2 = i8_tuple_to_u64(pair);
+            let reverted3 = i8_array_to_u64(array);
+            let reverted4 = i8_slice_to_u64(&array);
+
+            assert_eq!(int, reverted1);
+            assert_eq!(int, reverted2);
+            assert_eq!(int, reverted3);
+            assert_eq!(int, reverted4);
+
+            int += 512_345_678_901_234;
+            counter += 1;
+        }
+    }
+
+    #[test]
     fn test_u8_to_i16() {
 
         // I can't imagine a better way to test the conversion of 16-bit numbers than just testing them all
@@ -306,11 +463,15 @@ mod tests {
 
     fn put_stuff_in_bit_output(output: &mut BitOutput){
         output.add_bools_from_slice(&[false, true, true, false, true]);
+        output.add_bool(true);
         output.add_i8(-125);
         output.add_u8(234);
         output.add_i16(-21345);
         output.add_u16(25565);
         output.add_i32(2123456789);
+        output.add_u32(3123456789);
+        output.add_i64(-387238347374627346);
+        output.add_u64(823464823672346);
 
         output.add_bool_slice(&[false, false, true, false, true, true]);
         output.add_bool_vec(&vec![true, true, false, false]);
@@ -381,11 +542,15 @@ mod tests {
 
     fn check_stuff_in_bit_input(input: &mut BitInput){
         assert_eq!(input.read_bools(5).unwrap(), vec![false, true, true, false, true]);
+        assert_eq!(input.read_bool().unwrap(), true);
         assert_eq!(input.read_i8().unwrap(), -125);
         assert_eq!(input.read_u8().unwrap(), 234);
         assert_eq!(input.read_i16().unwrap(), -21345);
         assert_eq!(input.read_u16().unwrap(), 25565);
         assert_eq!(input.read_i32().unwrap(), 2123456789);
+        assert_eq!(input.read_u32().unwrap(), 3123456789);
+        assert_eq!(input.read_i64().unwrap(), -387238347374627346);
+        assert_eq!(input.read_u64().unwrap(), 823464823672346);
 
         assert_eq!(input.read_bool_vec().unwrap(), vec![false, false, true, false, true, true]);
         assert_eq!(input.read_bool_vec().unwrap(), vec![true, true, false, false]);

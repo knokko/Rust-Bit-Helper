@@ -979,6 +979,329 @@ pub fn u32_to_i8_array(int32: u32) -> [i8; 4] {
 }
 
 
+
+/**
+ * Convert 8 i8 values to an i64 value. Every distinct tuple of i8 values will be mapped 
+ * to another i64 value. This function can be used to convert the result of
+ * i64_to_i8_tuple, i64_to_i8_array or i64_to_i8_1...8 back to the original i64 value.
+ */
+pub fn i8s_to_i64(byte1: i8, byte2: i8, byte3: i8, byte4: i8, byte5: i8, byte6: i8, byte7: i8, byte8: i8) -> i64 {
+    ((byte8 as i64 & 0xFF) << 56) | ((byte7 as i64 & 0xFF) << 48) | ((byte6 as i64 & 0xFF) << 40) | ((byte5 as i64 & 0xFF) << 32)
+    | ((byte4 as i64 & 0xFF) << 24) | (((byte3 as i64 & 0xFF) & 0xff) << 16) | ((byte2 as i64 & 0xFF) << 8) | (byte1 as i64 & 0xFF)
+}
+
+/**
+ * Convert a tuple of i8 values to an i64 value. Every distinct pair of i8 values will be mapped 
+ * to another i64 value. This function can be used to convert the result of
+ * i64_to_i8_tuple, i64_to_i8_array or i64_to_i8_1...8 back to the original i64 value.
+ */
+pub fn i8_tuple_to_i64(bytes: (i8, i8, i8, i8, i8, i8, i8, i8)) -> i64 {
+    i8s_to_i64(bytes.0, bytes.1, bytes.2, bytes.3, bytes.4, bytes.5, bytes.6, bytes.7)
+}
+
+/**
+ * Convert an array containing 8 i8 values to a i64 value. Every distinct tuple of i8 
+ * values will be mapped to another i64 value. This function can be used to convert 
+ * the result of i64_to_i8_array, i64_to_i8_tuple or i64_to_i8_1...8 back 
+ * the original i64 value.
+ */
+pub fn i8_array_to_i64(bytes: [i8; 8]) -> i64 {
+    i8s_to_i64(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7])
+}
+
+/**
+ * Convert a slice containing 8 i8 values to an i64 value. Every distinct pair of i8 
+ * values will be mapped to another i64 value. This function can be used to convert 
+ * the result of i64_to_i8_array, i64_to_i8_tuple or i64_to_i8_1...8 back 
+ * the original i64 value.
+ */
+pub fn i8_slice_to_i64(bytes: &[i8; 8]) -> i64 {
+    i8s_to_i64(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7])
+}
+
+/**
+ * Converts a vector containing 8 i8 values to an i64 value. Every distinct pair of i8
+ * values will be mapped to another i64 value. This function can be used to convert 
+ * the result of i64_to_i8_array, i64_to_i8_tuple or i64_to_i8_1...8 back 
+ * the original i64 value.
+ */
+pub fn i8_vec_to_i64(bytes: &Vec<i8>) -> i64 {
+    i8s_to_i64(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7])
+}
+
+/**
+ * The first function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_1(int64: i64) -> i8 {
+    int64 as i8
+}
+
+/**
+ * The second function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_2(int64: i64) -> i8 {
+    (int64 >> 8) as i8
+}
+
+/**
+ * The third function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_3(int64: i64) -> i8 {
+    (int64 >> 16) as i8
+}
+
+/**
+ * The fourth function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_4(int64: i64) -> i8 {
+    (int64 >> 24) as i8
+}
+
+/**
+ * The fifth function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_5(int64: i64) -> i8 {
+    (int64 >> 32) as i8
+}
+
+/**
+ * The sixth function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_6(int64: i64) -> i8 {
+    (int64 >> 40) as i8
+}
+
+/**
+ * The seventh function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_7(int64: i64) -> i8 {
+    (int64 >> 48) as i8
+}
+
+/**
+ * The eighth (and last) function to convert an i64 value to i8 values. This function is useless
+ * without the other i64_to_i8_ functions. These 8 functions together will map every 
+ * distinct i64 value to another tuple of i8 values. The original i64 value can be 
+ * restored with the function i8s_to_i64. Similarly, the original
+ * value can be restored by using i8_tuple_to_i64, i8_array_to_i64 and i8_slice_to_i64.
+ */
+pub fn i64_to_i8_8(int64: i64) -> i8 {
+    (int64 >> 56) as i8
+}
+
+/**
+ * Converts an i64 value to a tuple of i8 values. Every distinct i64 value will be mapped
+ * to another pair of i8 values. This function can be used to store an i64 value on disk
+ * or to send it over the network. The original i64 value can be restored using
+ * i8_tuple_to_i64, i8s_to_i64, i8_array_to_i64 or i8_slice_to_i64.
+ */
+pub fn i64_to_i8_tuple(int64: i64) -> (i8, i8, i8, i8, i8, i8, i8, i8) {
+    (i64_to_i8_1(int64), i64_to_i8_2(int64), i64_to_i8_3(int64), i64_to_i8_4(int64),
+    i64_to_i8_5(int64), i64_to_i8_6(int64), i64_to_i8_7(int64), i64_to_i8_8(int64))
+}
+
+/**
+ * Converts an i64 value to an array of i8 values. Every distinct i64 value will be mapped
+ * to another array of i8 values. This function can be used to store an i64 value on disk
+ * or to send it over the network. The original i64 value can be restored using
+ * i8_array_to_i64, i8_slice_to_i64, i8s_to_i64 or i8_tuple_to_i64.
+ */
+pub fn i64_to_i8_array(int64: i64) -> [i8; 8] {
+    [i64_to_i8_1(int64), i64_to_i8_2(int64), i64_to_i8_3(int64), i64_to_i8_4(int64),
+    i64_to_i8_5(int64), i64_to_i8_6(int64), i64_to_i8_7(int64), i64_to_i8_8(int64)]
+}
+
+
+
+
+/**
+ * Convert 8 i8 values to an u64 value. Every distinct tuple of i8 values will be mapped 
+ * to another u64 value. This function can be used to convert the result of
+ * u64_to_i8_tuple, u64_to_i8_array or u64_to_i8_1...8 back to the original u64 value.
+ */
+pub fn i8s_to_u64(byte1: i8, byte2: i8, byte3: i8, byte4: i8, byte5: i8, byte6: i8, byte7: i8, byte8: i8) -> u64 {
+    ((byte8 as u64 & 0xFF) << 56) | ((byte7 as u64 & 0xFF) << 48) | ((byte6 as u64 & 0xFF) << 40) | ((byte5 as u64 & 0xFF) << 32)
+    | ((byte4 as u64 & 0xFF) << 24) | (((byte3 as u64 & 0xFF) & 0xff) << 16) | ((byte2 as u64 & 0xFF) << 8) | (byte1 as u64 & 0xFF)
+}
+
+/**
+ * Convert a tuple of i8 values to an u64 value. Every distinct pair of i8 values will be mapped 
+ * to another u64 value. This function can be used to convert the result of
+ * u64_to_i8_tuple, u64_to_i8_array or u64_to_i8_1...8 back to the original u64 value.
+ */
+pub fn i8_tuple_to_u64(bytes: (i8, i8, i8, i8, i8, i8, i8, i8)) -> u64 {
+    i8s_to_u64(bytes.0, bytes.1, bytes.2, bytes.3, bytes.4, bytes.5, bytes.6, bytes.7)
+}
+
+/**
+ * Convert an array containing 8 i8 values to a u64 value. Every distinct tuple of i8 
+ * values will be mapped to another u64 value. This function can be used to convert 
+ * the result of u64_to_i8_array, u64_to_i8_tuple or u64_to_i8_1...8 back 
+ * the original u64 value.
+ */
+pub fn i8_array_to_u64(bytes: [i8; 8]) -> u64 {
+    i8s_to_u64(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7])
+}
+
+/**
+ * Convert a slice containing 8 i8 values to an u64 value. Every distinct pair of i8 
+ * values will be mapped to another u64 value. This function can be used to convert 
+ * the result of u64_to_i8_array, u64_to_i8_tuple or u64_to_i8_1...8 back 
+ * the original u64 value.
+ */
+pub fn i8_slice_to_u64(bytes: &[i8; 8]) -> u64 {
+    i8s_to_u64(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7])
+}
+
+/**
+ * Converts a vector containing 8 i8 values to an u64 value. Every distinct pair of i8
+ * values will be mapped to another u64 value. This function can be used to convert 
+ * the result of u64_to_i8_array, u64_to_i8_tuple or u64_to_i8_1...8 back 
+ * the original u64 value.
+ */
+pub fn i8_vec_to_u64(bytes: &Vec<i8>) -> u64 {
+    i8s_to_u64(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7])
+}
+
+/**
+ * The first function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_1(int64: u64) -> i8 {
+    int64 as i8
+}
+
+/**
+ * The second function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_2(int64: u64) -> i8 {
+    (int64 >> 8) as i8
+}
+
+/**
+ * The third function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_3(int64: u64) -> i8 {
+    (int64 >> 16) as i8
+}
+
+/**
+ * The fourth function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_4(int64: u64) -> i8 {
+    (int64 >> 24) as i8
+}
+
+/**
+ * The fifth function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_5(int64: u64) -> i8 {
+    (int64 >> 32) as i8
+}
+
+/**
+ * The sixth function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_6(int64: u64) -> i8 {
+    (int64 >> 40) as i8
+}
+
+/**
+ * The seventh function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_7(int64: u64) -> i8 {
+    (int64 >> 48) as i8
+}
+
+/**
+ * The eighth (and last) function to convert an u64 value to i8 values. This function is useless
+ * without the other u64_to_i8_ functions. These 8 functions together will map every 
+ * distinct u64 value to another tuple of i8 values. The original u64 value can be 
+ * restored with the function i8s_to_u64. Similarly, the original
+ * value can be restored by using i8_tuple_to_u64, i8_array_to_u64 and i8_slice_to_u64.
+ */
+pub fn u64_to_i8_8(int64: u64) -> i8 {
+    (int64 >> 56) as i8
+}
+
+/**
+ * Converts an u64 value to a tuple of i8 values. Every distinct u64 value will be mapped
+ * to another pair of i8 values. This function can be used to store an u64 value on disk
+ * or to send it over the network. The original u64 value can be restored using
+ * i8_tuple_to_u64, i8s_to_u64, i8_array_to_u64 or i8_slice_to_u64.
+ */
+pub fn u64_to_i8_tuple(int64: u64) -> (i8, i8, i8, i8, i8, i8, i8, i8) {
+    (u64_to_i8_1(int64), u64_to_i8_2(int64), u64_to_i8_3(int64), u64_to_i8_4(int64),
+    u64_to_i8_5(int64), u64_to_i8_6(int64), u64_to_i8_7(int64), u64_to_i8_8(int64))
+}
+
+/**
+ * Converts an u64 value to an array of i8 values. Every distinct u64 value will be mapped
+ * to another array of i8 values. This function can be used to store an u64 value on disk
+ * or to send it over the network. The original u64 value can be restored using
+ * i8_array_to_u64, i8_slice_to_u64, i8s_to_u64 or i8_tuple_to_u64.
+ */
+pub fn u64_to_i8_array(int64: u64) -> [i8; 8] {
+    [u64_to_i8_1(int64), u64_to_i8_2(int64), u64_to_i8_3(int64), u64_to_i8_4(int64),
+    u64_to_i8_5(int64), u64_to_i8_6(int64), u64_to_i8_7(int64), u64_to_i8_8(int64)]
+}
+
+
 /**
  * Convert 2 u8 values to an i16 value. Every distinct pair of u8 values will be mapped 
  * to another i16 value. This function can be used to convert the result of

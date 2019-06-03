@@ -102,6 +102,34 @@ pub trait BitOutput {
         self.add_direct_i8(u32_to_i8_4(integer));
     }
 
+    /// Adds the provided i64 value to this BitOutput without checking if there is enough capacity left.
+    /// 
+    /// The mirror function of this function is read_i64.
+    fn add_direct_i64(&mut self, integer: i64){
+        self.add_direct_i8(i64_to_i8_1(integer));
+        self.add_direct_i8(i64_to_i8_2(integer));
+        self.add_direct_i8(i64_to_i8_3(integer));
+        self.add_direct_i8(i64_to_i8_4(integer));
+        self.add_direct_i8(i64_to_i8_5(integer));
+        self.add_direct_i8(i64_to_i8_6(integer));
+        self.add_direct_i8(i64_to_i8_7(integer));
+        self.add_direct_i8(i64_to_i8_8(integer));
+    }
+
+    /// Adds the provided u64 value to this BitOutput without checking if there is enough capacity left.
+    /// 
+    /// The mirror function of this function is read_i64.
+    fn add_direct_u64(&mut self, integer: u64){
+        self.add_direct_i8(u64_to_i8_1(integer));
+        self.add_direct_i8(u64_to_i8_2(integer));
+        self.add_direct_i8(u64_to_i8_3(integer));
+        self.add_direct_i8(u64_to_i8_4(integer));
+        self.add_direct_i8(u64_to_i8_5(integer));
+        self.add_direct_i8(u64_to_i8_6(integer));
+        self.add_direct_i8(u64_to_i8_7(integer));
+        self.add_direct_i8(u64_to_i8_8(integer));
+    }
+
     /**
      * Add all bools in the slice to this BitOutput without checking if there is enough capacity left in this
      * BitOutput. This is just a shortcut for adding all bools one by one. The amount of bools is NOT stored, 
@@ -1402,6 +1430,19 @@ pub trait BitOutput {
     fn add_u32(&mut self, value: u32){
         self.ensure_extra_capacity(32);
         self.add_direct_u32(value);
+    }
+
+    /// Adds an i64 value to this BitOutput.
+    /// 
+    /// The mirror function of this function is read_i64.
+    fn add_i64(&mut self, value: i64){
+        self.ensure_extra_capacity(64);
+        self.add_direct_i64(value);
+    }
+
+    fn add_u64(&mut self, value: u64){
+        self.ensure_extra_capacity(64);
+        self.add_direct_u64(value);
     }
 
     /**
