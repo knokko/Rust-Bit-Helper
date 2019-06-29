@@ -1600,7 +1600,7 @@ impl BitInput for I8VecBitInput {
     }
 
     fn ensure_extra_capacity(&mut self, boolean_amount: usize) -> Result<(), InputCapacityError> {
-        let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
+        let remaining = 8 * (self.vector.len() - self.byte_index) - self.bool_index;
         if remaining < boolean_amount {
             Err(InputCapacityError {
                 current_capacity: self.bool_index,
@@ -1697,7 +1697,7 @@ impl BitInput for U8VecBitInput {
     }
 
     fn ensure_extra_capacity(&mut self, boolean_amount: usize) -> Result<(), InputCapacityError> {
-        let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
+        let remaining = 8 * (self.vector.len() - self.byte_index) - self.bool_index;
         if remaining < boolean_amount {
             Err(InputCapacityError {
                 current_capacity: self.bool_index + 8 * self.byte_index,
@@ -1792,7 +1792,7 @@ impl<'a> BitInput for U8VecRefBitInput<'a> {
     }
 
     fn ensure_extra_capacity(&mut self, boolean_amount: usize) -> Result<(), InputCapacityError> {
-        let remaining = 8 - self.bool_index + 8 * (self.vector.len() - self.byte_index);
+        let remaining = 8 * (self.vector.len() - self.byte_index) - self.bool_index;
         if remaining < boolean_amount {
             Err(InputCapacityError {
                 current_capacity: self.bool_index + 8 * self.byte_index,

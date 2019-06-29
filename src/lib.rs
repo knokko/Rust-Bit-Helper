@@ -483,6 +483,56 @@ mod tests {
     }
 
     #[test]
+    fn test_bool_slice_bit_input_capacity(){
+        test_input_capacity_1(&mut BoolSliceBitInput::new(&vec![true; 8]));
+        test_input_capacity_2(&mut BoolSliceBitInput::new(&vec![false; 40]));
+        test_input_capacity_3(&mut BoolSliceBitInput::new(&vec![true; 48]));
+    }
+
+    #[test]
+    fn test_i8_vec_bit_input_capacity(){
+        test_input_capacity_1(&mut I8VecBitInput::new(vec![10; 1]));
+        test_input_capacity_2(&mut I8VecBitInput::new(vec![2; 5]));
+        test_input_capacity_3(&mut I8VecBitInput::new(vec![9; 6]));
+    }
+
+    #[test]
+    fn test_u8_vec_bit_input_capacity(){
+        test_input_capacity_1(&mut U8VecBitInput::new(vec![10; 1]));
+        test_input_capacity_2(&mut U8VecBitInput::new(vec![2; 5]));
+        test_input_capacity_3(&mut U8VecBitInput::new(vec![9; 6]));
+    }
+
+    #[test]
+    fn test_u8_vec_ref_bit_input_capacity(){
+        test_input_capacity_1(&mut U8VecRefBitInput::new(&vec![10; 1]));
+        test_input_capacity_2(&mut U8VecRefBitInput::new(&vec![2; 5]));
+        test_input_capacity_3(&mut U8VecRefBitInput::new(&vec![9; 6]));
+    }
+
+    fn test_input_capacity_1(input: &mut BitInput){
+        input.read_i8().unwrap();
+        input.read_bool().unwrap_err();
+    }
+
+    fn test_input_capacity_2(input: &mut BitInput){
+        input.read_u16().unwrap();
+        input.read_bool().unwrap();
+        input.read_i16().unwrap();
+        input.read_i8().unwrap_err();
+        input.read_bools(7).unwrap();
+    }
+
+    fn test_input_capacity_3(input: &mut BitInput){
+        input.read_bool().unwrap();
+        input.read_i8().unwrap();
+        input.read_bools(4).unwrap();
+        input.read_u32().unwrap();
+        input.read_bools(4).unwrap_err();
+        input.read_bools(3).unwrap();
+    }
+
+    #[test]
     fn test_u8_vec_bit_io() {
         let mut output = U8VecBitOutput::with_capacity(10);
         put_stuff_in_bit_output(&mut output);
